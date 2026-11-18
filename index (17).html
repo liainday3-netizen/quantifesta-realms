@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUANTRA — Your Daily Practice, Guided by AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+:root{
+  --void:#00060f; --deep:#030d1c; --panel:#081424;
+  --teal:#00f5d4; --violet:#9b5de5; --gold:#f5c077;
+  --rose:#f15bb5; --blue:#4cc9f0; --lime:#a8ff78;
+  --white:#edf4ff; --muted:rgba(237,244,255,.48);
+  --cc:#c17f3e; --ca:#e8a84a;
+  --border:rgba(255,255,255,.07);
+  --border-teal:rgba(0,245,212,.22);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--white);font-family:'Inter',sans-serif;overflow-x:hidden;cursor:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--void)}::-webkit-scrollbar-thumb{background:rgba(0,245,212,.25);border-radius:3px}
+
+/* CURSOR */
+#cr{position:fixed;top:0;left:0;width:28px;height:28px;border:1px solid var(--teal);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .2s,height .2s}
+#cd{position:fixed;top:0;left:0;width:4px;height:4px;background:var(--teal);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.pt{position:fixed;pointer-events:none;z-index:9998;border-radius:50%;animation:ptF .8s ease forwards}
+@keyframes ptF{from{opacity:.5}to{opacity:0;transform:scale(0)}}
+#nebula{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+
+/* PAGE SYSTEM */
+.page{display:none;animation:pgIn .45s ease}
+.page.active{display:block}
+@keyframes pgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* NAV */
+.nav{position:fixed;top:0;inset-inline:0;z-index:800;height:60px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,6,15,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:.9rem;letter-spacing:3px;cursor:pointer;background:linear-gradient(90deg,var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-tagline{font-size:.65rem;color:rgba(237,244,255,.25);letter-spacing:.5px;margin-top:1px;font-weight:300}
+.nav-center{display:flex;gap:28px}
+.nav-center a{font-size:.75rem;font-weight:500;color:rgba(237,244,255,.4);text-decoration:none;cursor:pointer;transition:color .2s;letter-spacing:.2px}
+.nav-center a:hover{color:var(--white)}
+.nav-right{display:flex;gap:8px;align-items:center}
+.btn{padding:8px 18px;font-size:.72rem;font-weight:600;letter-spacing:.3px;border-radius:50px;cursor:pointer;transition:all .25s;border:none;font-family:'Inter',sans-serif}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:rgba(237,244,255,.4)}
+.btn-ghost:hover{border-color:rgba(237,244,255,.2);color:var(--white)}
+.btn-primary{background:linear-gradient(135deg,rgba(0,245,212,.18),rgba(155,93,229,.18));border:1px solid var(--border-teal);color:var(--teal)}
+.btn-primary:hover{box-shadow:0 0 24px rgba(0,245,212,.18);transform:translateY(-1px)}
+.btn-claude{background:linear-gradient(135deg,rgba(193,127,62,.2),rgba(232,168,74,.1));border:1px solid rgba(193,127,62,.38);color:var(--ca)}
+.btn-claude:hover{box-shadow:0 0 22px rgba(193,127,62,.16)}
+.btn-app-right{display:none}
+
+/* ════════════════════════════
+   LANDING
+════════════════════════════ */
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;text-align:center;position:relative;z-index:2;overflow:hidden}
+.hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 35%,rgba(0,245,212,.055) 0,transparent 58%),radial-gradient(ellipse 50% 60% at 12% 85%,rgba(155,93,229,.065) 0,transparent 52%),radial-gradient(ellipse 40% 40% at 88% 65%,rgba(76,201,240,.04) 0,transparent 52%);animation:hgP 14s ease-in-out infinite alternate}
+@keyframes hgP{from{opacity:.65}to{opacity:1;transform:scale(1.03)}}
+
+/* Outcome pill */
+.outcome-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.18);border-radius:50px;font-size:.7rem;font-weight:500;color:var(--teal);letter-spacing:.5px;margin-bottom:28px;opacity:0;animation:fU .8s ease .3s forwards}
+.op-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);box-shadow:0 0 7px var(--teal);animation:opD 2s ease-in-out infinite}
+@keyframes opD{0%,100%{opacity:.2}50%{opacity:1}}
+
+/* Canvas */
+.hero-visual{position:relative;width:300px;height:300px;margin:0 auto 24px;opacity:0;animation:fU 1.1s ease .2s forwards}
+#heroC{position:absolute;inset:0}
+.hero-orb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.h-orb-inner{width:60px;height:60px;border-radius:50%;border:1px solid rgba(0,245,212,.45);box-shadow:0 0 40px var(--teal),inset 0 0 20px rgba(0,245,212,.12);display:flex;align-items:center;justify-content:center;font-size:1.3rem;animation:hOI 5s ease-in-out infinite}
+@keyframes hOI{0%,100%{box-shadow:0 0 30px var(--teal),inset 0 0 14px rgba(0,245,212,.09)}50%{box-shadow:0 0 65px var(--teal),0 0 120px rgba(0,245,212,.1),inset 0 0 28px rgba(0,245,212,.18);transform:scale(1.16)}}
+
+.hero-h1{font-family:'Cinzel Decorative',serif;font-size:clamp(2.2rem,5.5vw,4.8rem);font-weight:700;line-height:1.05;letter-spacing:-.01em;background:linear-gradient(150deg,var(--teal) 0,var(--white) 32%,var(--violet) 66%,var(--rose) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 50px rgba(0,245,212,.22));opacity:0;animation:fU 1.1s ease .6s forwards;margin-bottom:8px}
+.hero-sub-brand{font-size:.85rem;font-weight:500;color:rgba(237,244,255,.3);letter-spacing:4px;text-transform:uppercase;opacity:0;animation:fU .9s ease .75s forwards;margin-bottom:18px}
+
+/* VALUE PROP — this is the most important copy */
+.hero-value{font-size:1.25rem;font-weight:300;color:rgba(237,244,255,.78);max-width:580px;margin:0 auto 12px;line-height:1.75;opacity:0;animation:fU .9s ease .9s forwards}
+.hero-value strong{color:var(--white);font-weight:600}
+.hero-subvalue{font-size:.88rem;color:rgba(237,244,255,.4);max-width:480px;margin:0 auto 40px;line-height:1.6;opacity:0;animation:fU .9s ease 1s forwards}
+
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fU .9s ease 1.1s forwards;margin-bottom:44px}
+.h-cta-main{padding:14px 36px;background:linear-gradient(135deg,rgba(0,245,212,.18),rgba(155,93,229,.18));border:1px solid var(--border-teal);border-radius:50px;color:var(--teal);font-size:.8rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .35s;font-family:'Inter',sans-serif}
+.h-cta-main:hover{box-shadow:0 0 48px rgba(0,245,212,.2);transform:translateY(-3px)}
+.h-cta-cl{padding:14px 32px;background:linear-gradient(135deg,rgba(193,127,62,.2),rgba(232,168,74,.1));border:1px solid rgba(193,127,62,.38);border-radius:50px;color:var(--ca);font-size:.8rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .35s;font-family:'Inter',sans-serif}
+.h-cta-cl:hover{box-shadow:0 0 44px rgba(193,127,62,.18);transform:translateY(-3px)}
+.h-cta-ghost{padding:14px 28px;background:transparent;border:1px solid var(--border);border-radius:50px;color:rgba(237,244,255,.4);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .3s;font-family:'Inter',sans-serif}
+.h-cta-ghost:hover{border-color:rgba(237,244,255,.18);color:var(--white)}
+
+/* SOCIAL PROOF ROW */
+.social-proof{display:flex;align-items:center;gap:28px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fU .9s ease 1.2s forwards}
+.sp-avatars{display:flex}
+.sp-av{width:30px;height:30px;border-radius:50%;border:2px solid var(--void);font-size:.75rem;display:flex;align-items:center;justify-content:center;margin-left:-8px}
+.sp-av:first-child{margin-left:0}
+.sp-text{font-size:.8rem;color:rgba(237,244,255,.45)}
+.sp-text strong{color:var(--white);font-weight:600}
+.sp-divider{width:1px;height:20px;background:var(--border)}
+.sp-stars{font-size:.75rem;color:var(--gold);letter-spacing:2px}
+.sp-rating{font-size:.75rem;color:rgba(237,244,255,.4);margin-left:4px}
+
+@keyframes fU{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION */
+.sec{position:relative;z-index:2;padding:100px 40px}
+.sec-center{text-align:center}
+.sec-label{font-size:.68rem;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--violet);margin-bottom:10px;display:flex;align-items:center;gap:10px;justify-content:center}
+.sec-label::before,.sec-label::after{content:'';flex:1;max-width:48px;height:1px;background:linear-gradient(90deg,transparent,rgba(155,93,229,.25))}
+.sec-h{font-family:'Cinzel Decorative',serif;font-size:clamp(1.6rem,3vw,2.4rem);margin-bottom:12px;text-align:center}
+.sec-sub{font-size:.95rem;font-weight:300;color:var(--muted);max-width:500px;margin:0 auto 56px;line-height:1.85;text-align:center}
+
+/* PROBLEM / SOLUTION */
+.problem-solution{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:960px;margin:0 auto}
+.ps-col{background:rgba(3,13,28,.7);border:1px solid var(--border);border-radius:20px;padding:36px 32px}
+.ps-col.solution{border-color:var(--border-teal);background:rgba(0,245,212,.04)}
+.ps-label{font-size:.65rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:6px}
+.ps-label.problem-lbl{color:rgba(237,244,255,.35)}
+.ps-label.solution-lbl{color:var(--teal)}
+.ps-items{display:flex;flex-direction:column;gap:14px}
+.ps-item{display:flex;gap:11px;align-items:flex-start;font-size:.88rem;line-height:1.65;color:rgba(237,244,255,.58)}
+.ps-item-icon{flex-shrink:0;margin-top:1px;font-size:.85rem}
+
+/* HOW IT WORKS */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:900px;margin:0 auto}
+.step-card{background:rgba(3,13,28,.7);border:1px solid var(--border);border-radius:18px;padding:28px 24px;position:relative;transition:all .35s}
+.step-card:hover{border-color:rgba(0,245,212,.18);transform:translateY(-4px)}
+.step-num{font-family:'Cinzel Decorative',serif;font-size:2.5rem;background:linear-gradient(135deg,var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:12px}
+.step-title{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--white);margin-bottom:8px}
+.step-text{font-size:.82rem;font-weight:300;color:var(--muted);line-height:1.72}
+
+/* OUTCOME CARDS */
+.outcomes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;max-width:900px;margin:0 auto}
+.oc{background:rgba(3,13,28,.7);border:1px solid var(--border);border-radius:16px;padding:24px 20px;text-align:center;transition:all .35s}
+.oc:hover{transform:translateY(-4px)}
+.oc-icon{font-size:2rem;margin-bottom:10px;display:block}
+.oc-title{font-size:.88rem;font-weight:600;color:var(--white);margin-bottom:6px}
+.oc-text{font-size:.78rem;font-weight:300;color:var(--muted);line-height:1.65}
+
+/* FEATURES DEEP */
+.features-deep{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:1000px;margin:0 auto}
+.fd-block{display:flex;gap:18px;align-items:flex-start}
+.fd-icon-wrap{width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.fd-title{font-size:.92rem;font-weight:600;color:var(--white);margin-bottom:5px}
+.fd-text{font-size:.82rem;font-weight:300;color:var(--muted);line-height:1.7}
+.fd-tag{display:inline-block;margin-top:8px;padding:2px 10px;border-radius:50px;font-size:.62rem;font-weight:600;letter-spacing:.5px}
+
+/* TESTIMONIALS — specific, credible */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;max-width:960px;margin:0 auto}
+.tc{background:rgba(3,13,28,.7);border:1px solid var(--border);border-radius:18px;padding:28px;position:relative;transition:border-color .3s}
+.tc:hover{border-color:rgba(255,255,255,.1)}
+.tc-ed{position:absolute;top:16px;right:16px;padding:2px 9px;border-radius:50px;font-size:.58rem;font-weight:600;letter-spacing:.5px}
+.tc-stars{color:var(--gold);font-size:.8rem;letter-spacing:2px;margin-bottom:12px}
+.tc-quote{font-size:.88rem;font-style:italic;color:rgba(237,244,255,.68);line-height:1.78;margin-bottom:16px;font-family:'Cormorant Garamond',serif}
+.tc-result{font-size:.75rem;font-weight:600;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:5px}
+.tc-result::before{content:'→';opacity:.6}
+.tc-auth{display:flex;align-items:center;gap:9px}
+.tc-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.tc-name{font-size:.8rem;font-weight:600;color:rgba(237,244,255,.6)}
+.tc-role{font-size:.7rem;color:rgba(237,244,255,.3);margin-top:1px}
+
+/* COMPARISON TABLE */
+.compare-wrap{max-width:820px;margin:0 auto;background:rgba(3,13,28,.8);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.compare-table{width:100%;border-collapse:collapse}
+.compare-table th{padding:18px 20px;font-size:.7rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.35);background:rgba(0,0,0,.25);text-align:center}
+.compare-table th:first-child{text-align:left;width:34%}
+.compare-table th.q-col{color:var(--teal);background:rgba(0,245,212,.04)}
+.compare-table td{padding:14px 20px;font-size:.82rem;border-top:1px solid var(--border);text-align:center;color:rgba(237,244,255,.55)}
+.compare-table td:first-child{text-align:left;font-weight:500;color:rgba(237,244,255,.75)}
+.compare-table td.q-col{background:rgba(0,245,212,.03);color:var(--teal);font-weight:500}
+.compare-table tr:hover td{background:rgba(255,255,255,.02)}
+.c-yes{color:var(--lime)}
+.c-no{color:rgba(237,244,255,.22)}
+.c-partial{color:var(--gold)}
+
+/* PRICING */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:960px;margin:0 auto}
+.pc{border-radius:22px;padding:32px 26px;position:relative;overflow:hidden;transition:transform .35s;cursor:pointer}
+.pc:hover{transform:translateY(-6px)}
+.pc-free{background:rgba(3,13,28,.8);border:1px solid var(--border)}
+.pc-adept{background:rgba(8,18,34,.85);border:1px solid rgba(155,93,229,.25);box-shadow:0 0 50px rgba(155,93,229,.04)}
+.pc-claude{background:linear-gradient(140deg,rgba(16,8,2,.95),rgba(28,13,2,.95));border:1px solid rgba(193,127,62,.34);box-shadow:0 0 55px rgba(193,127,62,.06)}
+.pc-pop{position:absolute;top:14px;right:14px;padding:3px 10px;background:rgba(155,93,229,.18);border:1px solid rgba(155,93,229,.3);border-radius:50px;font-size:.6rem;font-weight:600;color:var(--violet);letter-spacing:.5px}
+.pc-tier{font-size:.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;display:block}
+.pc-price-wrap{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+.pc-price{font-size:2.4rem;font-weight:700;letter-spacing:-1px}
+.pc-period{font-size:.72rem;color:rgba(237,244,255,.3);font-weight:400}
+.pc-annual{font-size:.68rem;color:rgba(237,244,255,.25);margin-bottom:14px}
+.pc-name{font-family:'Cinzel Decorative',serif;font-size:1.2rem;margin-bottom:8px}
+.pc-desc{font-size:.8rem;color:var(--muted);line-height:1.65;margin-bottom:20px}
+.pc-feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.pc-feats li{display:flex;gap:8px;font-size:.78rem;color:rgba(237,244,255,.55)}
+.pc-feats li span{flex-shrink:0;margin-top:1px}
+.pc-cta{width:100%;padding:12px;border-radius:50px;font-size:.75rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .35s;border:none;font-family:'Inter',sans-serif}
+.pc-guarantee{text-align:center;margin-top:10px;font-size:.68rem;color:rgba(237,244,255,.25)}
+.pricing-note{text-align:center;margin-top:22px;font-size:.78rem;color:rgba(237,244,255,.28)}
+.pricing-note span{color:var(--teal)}
+
+/* FAQ */
+.faq-wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:2px}
+.faq-item{background:rgba(3,13,28,.7);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .25s}
+.faq-item:hover{border-color:rgba(255,255,255,.1)}
+.faq-q{padding:18px 22px;font-size:.88rem;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:rgba(237,244,255,.75)}
+.faq-q::after{content:'+';font-size:1.2rem;color:rgba(237,244,255,.3);transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:.82rem;color:rgba(237,244,255,.5);line-height:1.75;padding:0 22px}
+.faq-item.open .faq-a{max-height:200px;padding:0 22px 18px}
+
+/* RISK REVERSAL */
+.risk-row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;max-width:760px;margin:0 auto}
+.risk-item{display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(3,13,28,.7);border:1px solid var(--border);border-radius:12px;font-size:.78rem;color:rgba(237,244,255,.5)}
+.risk-item-icon{font-size:1.1rem;flex-shrink:0}
+
+/* FOOTER */
+.lfoot{position:relative;z-index:2;padding:64px 40px 40px;border-top:1px solid var(--border)}
+.lf-inner{max-width:960px;margin:0 auto}
+.lf-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.lf-brand{font-family:'Cinzel Decorative',serif;font-size:.9rem;background:linear-gradient(90deg,var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.lf-desc{font-size:.78rem;font-weight:300;color:rgba(237,244,255,.3);line-height:1.68;max-width:230px}
+.lf-col-h{font-size:.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.22);margin-bottom:14px}
+.lf-col a{display:block;font-size:.78rem;color:rgba(237,244,255,.3);text-decoration:none;margin-bottom:8px;cursor:pointer;transition:color .2s}
+.lf-col a:hover{color:var(--teal)}
+.lf-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-top:24px;border-top:1px solid var(--border)}
+.lf-copy{font-size:.68rem;color:rgba(237,244,255,.15);letter-spacing:.3px}
+.lf-legal{display:flex;gap:16px}
+.lf-legal a{font-size:.68rem;color:rgba(237,244,255,.2);text-decoration:none;cursor:pointer;transition:color .2s}
+.lf-legal a:hover{color:rgba(237,244,255,.45)}
+
+/* DIVIDERS */
+.dv{position:relative;z-index:2;height:80px;display:flex;align-items:center;justify-content:center}
+.dv::before{content:'';position:absolute;inset-inline:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,212,.1),rgba(155,93,229,.1),transparent)}
+.dv-s{font-size:.55rem;letter-spacing:6px;color:rgba(237,244,255,.07);position:relative;padding:0 22px;background:var(--void)}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+/* ════════════════════════════
+   MODALS
+════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px);padding:20px}
+.modal-overlay.show{display:flex;animation:pgIn .3s ease}
+.modal{max-width:480px;width:100%;border-radius:24px;overflow:hidden;position:relative}
+.modal-std{background:rgba(4,14,28,.97);border:1px solid rgba(155,93,229,.18)}
+.modal-cl{background:linear-gradient(140deg,rgba(16,8,2,.98),rgba(26,12,2,.98));border:1px solid rgba(193,127,62,.32)}
+.modal-header{padding:28px 32px 20px;border-bottom:1px solid var(--border)}
+.modal-close{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:none;color:rgba(237,244,255,.4);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s}
+.modal-close:hover{background:rgba(255,255,255,.1);color:var(--white)}
+.modal-tag{font-size:.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:8px}
+.modal-h{font-family:'Cinzel Decorative',serif;font-size:1.3rem;margin-bottom:6px}
+.modal-sub{font-size:.82rem;color:var(--muted);line-height:1.65}
+.modal-body{padding:22px 32px 28px}
+
+/* Stripe form */
+.plan-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.pt-opt{padding:14px 12px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .25s;position:relative}
+.pt-opt.sel{border-color:rgba(155,93,229,.4);background:rgba(155,93,229,.07)}
+.pt-opt.sel-cl{border-color:rgba(193,127,62,.4);background:rgba(193,127,62,.07)}
+.pt-name{font-size:.7rem;font-weight:600;color:rgba(237,244,255,.5);margin-bottom:4px}
+.pt-price{font-size:1.3rem;font-weight:700;letter-spacing:-.5px}
+.pt-sub{font-size:.6rem;color:rgba(237,244,255,.28);margin-top:2px}
+.pt-save{position:absolute;top:7px;right:7px;padding:2px 7px;background:rgba(168,255,120,.14);border:1px solid rgba(168,255,120,.22);border-radius:50px;font-size:.55rem;font-weight:600;color:var(--lime)}
+
+.sf-label{font-size:.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.3);display:block;margin-bottom:5px}
+.sf-input{width:100%;padding:11px 14px;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:10px;color:var(--white);font-size:.85rem;outline:none;transition:border-color .25s;font-family:'Inter',sans-serif;margin-bottom:12px}
+.sf-input:focus{border-color:rgba(155,93,229,.35)}
+.sf-input.cl:focus{border-color:rgba(193,127,62,.35)}
+.sf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card-logos{display:flex;gap:6px;margin-bottom:5px}
+.card-logo{padding:3px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px;font-size:.5rem;font-weight:700;color:rgba(237,244,255,.3);letter-spacing:.5px}
+.pay-btn{width:100%;padding:13px;border-radius:50px;font-size:.82rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .35s;border:none;font-family:'Inter',sans-serif;margin-top:4px}
+.pay-btn:hover{transform:translateY(-2px)}
+.stripe-lock{display:flex;align-items:center;gap:5px;justify-content:center;margin-top:9px;font-size:.65rem;color:rgba(237,244,255,.2);font-weight:500}
+.stripe-lock::before{content:'🔒';font-size:.65rem}
+
+/* Processing + Success */
+.processing{display:none;flex-direction:column;align-items:center;gap:12px;padding:20px;text-align:center}
+.spinner{width:30px;height:30px;border:2px solid rgba(155,93,229,.18);border-top-color:var(--violet);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-txt{font-size:.75rem;font-weight:600;letter-spacing:2px;color:rgba(237,244,255,.4);text-transform:uppercase}
+.success-state{display:none;flex-direction:column;align-items:center;gap:14px;padding:16px;text-align:center}
+.success-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;animation:succP .5s ease}
+@keyframes succP{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.success-h{font-family:'Cinzel Decorative',serif;font-size:1.2rem}
+.success-sub{font-size:.82rem;color:var(--muted);line-height:1.65}
+.success-btn{padding:11px 30px;border-radius:50px;font-size:.75rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .25s;border:none;font-family:'Inter',sans-serif}
+
+/* UPGRADE PROMPTS (in-app) */
+.upgrade-prompt{background:rgba(3,13,28,.85);border:1px solid rgba(0,245,212,.14);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:14px;cursor:pointer;transition:all .3s;animation:slideD .4s ease}
+@keyframes slideD{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.upgrade-prompt:hover{background:rgba(0,245,212,.06);border-color:rgba(0,245,212,.22)}
+.upgrade-prompt.cl-pr{border-color:rgba(193,127,62,.16);background:rgba(193,127,62,.04)}
+.upgrade-prompt.cl-pr:hover{background:rgba(193,127,62,.08);border-color:rgba(193,127,62,.24)}
+.up-icon{font-size:1.3rem;flex-shrink:0}
+.up-body{flex:1}
+.up-title{font-size:.82rem;font-weight:600;color:var(--white);margin-bottom:2px}
+.up-sub{font-size:.72rem;color:rgba(237,244,255,.42)}
+.up-btn{padding:7px 16px;border-radius:50px;font-size:.65rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .25s;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0}
+.up-btn.teal{background:rgba(0,245,212,.12);border:1px solid rgba(0,245,212,.25);color:var(--teal)}
+.up-btn.teal:hover{background:rgba(0,245,212,.2)}
+.up-btn.copper{background:rgba(193,127,62,.12);border:1px solid rgba(193,127,62,.25);color:var(--ca)}
+.up-btn.copper:hover{background:rgba(193,127,62,.2)}
+
+/* PAYWALL */
+.paywall{background:rgba(3,13,28,.8);border:1px solid rgba(155,93,229,.16);border-radius:18px;padding:36px;text-align:center}
+.pw-icon{font-size:2.2rem;margin-bottom:14px;display:block}
+.pw-h{font-family:'Cinzel Decorative',serif;font-size:1.1rem;margin-bottom:8px}
+.pw-sub{font-size:.85rem;color:var(--muted);margin-bottom:20px;line-height:1.7}
+.pw-feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:22px;text-align:left;max-width:300px;margin-inline:auto}
+.pw-feats li{display:flex;gap:8px;font-size:.8rem;color:rgba(237,244,255,.52)}
+.pw-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.pw-btn{padding:11px 26px;border-radius:50px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.pw-btn.primary{background:linear-gradient(135deg,rgba(155,93,229,.2),rgba(0,245,212,.1));border:1px solid rgba(155,93,229,.35);color:var(--violet)}
+.pw-btn.primary:hover{box-shadow:0 0 24px rgba(155,93,229,.18);transform:translateY(-1px)}
+.pw-btn.ghost{background:transparent;border:1px solid var(--border);color:rgba(237,244,255,.35)}
+.pw-btn.ghost:hover{border-color:rgba(237,244,255,.18);color:var(--white)}
+
+/* ONBOARDING */
+.ob-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 20px 40px;position:relative;z-index:2}
+.ob-wrap{max-width:520px;width:100%}
+.ob-steps{display:flex;align-items:center;gap:0;margin-bottom:28px;justify-content:center}
+.osd{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:600;color:rgba(237,244,255,.28);transition:all .35s;font-family:'Inter',sans-serif}
+.osd.act{background:rgba(0,245,212,.1);border-color:var(--teal);color:var(--teal);box-shadow:0 0 12px rgba(0,245,212,.16)}
+.osd.done{background:rgba(0,245,212,.14);border-color:rgba(0,245,212,.35);color:var(--teal)}
+.osd.cl-act{background:rgba(193,127,62,.1);border-color:var(--ca);color:var(--ca);box-shadow:0 0 12px rgba(193,127,62,.14)}
+.osl{flex:1;max-width:44px;height:1px;background:var(--border);transition:background .35s}
+.osl.done{background:rgba(0,245,212,.25)}
+.ob-card{background:rgba(3,13,28,.92);border:1px solid var(--border);border-radius:22px;padding:38px 36px;backdrop-filter:blur(18px)}
+.ob-card.cl{background:linear-gradient(140deg,rgba(16,8,2,.94),rgba(26,12,2,.94));border-color:rgba(193,127,62,.24)}
+.ob-sp{display:none}
+.ob-sp.act{display:block;animation:pgIn .32s ease}
+.ob-label{font-size:.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:8px}
+.ob-eyebrow{font-size:.68rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;display:block;margin-bottom:9px}
+.ob-title{font-family:'Cinzel Decorative',serif;font-size:1.5rem;margin-bottom:10px}
+.ob-sub{font-size:.85rem;color:var(--muted);line-height:1.75;margin-bottom:26px}
+.ob-inp{width:100%;padding:12px 14px;background:rgba(0,0,0,.48);border:1px solid var(--border);border-radius:10px;color:var(--white);font-size:.88rem;outline:none;transition:all .25s;font-family:'Inter',sans-serif;margin-bottom:14px}
+.ob-inp:focus{border-color:rgba(0,245,212,.28);box-shadow:0 0 12px rgba(0,245,212,.05)}
+.ob-inp.cl:focus{border-color:rgba(193,127,62,.28);box-shadow:0 0 12px rgba(193,127,62,.05)}
+.ob-inp::placeholder{color:rgba(237,244,255,.22)}
+.ob-sel{width:100%;padding:12px 14px;background:rgba(0,0,0,.48);border:1px solid var(--border);border-radius:10px;color:var(--white);font-size:.88rem;outline:none;appearance:none;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:14px}
+.ob-field-label{font-size:.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.28);display:block;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.chip{padding:6px 13px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:50px;font-size:.7rem;font-weight:500;cursor:pointer;transition:all .25s;color:rgba(237,244,255,.38)}
+.chip:hover{background:rgba(0,245,212,.07);border-color:rgba(0,245,212,.2);color:var(--teal)}
+.chip.on{background:rgba(0,245,212,.09);border-color:rgba(0,245,212,.3);color:var(--teal)}
+.chip.cl-chip:hover,.chip.cl-chip.on{background:rgba(193,127,62,.09);border-color:rgba(193,127,62,.28);color:var(--ca)}
+.freq-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.fopt{padding:9px 7px;background:rgba(0,0,0,.38);border:1px solid var(--border);border-radius:9px;text-align:center;cursor:pointer;transition:all .25s}
+.fopt:hover,.fopt.on{background:rgba(0,245,212,.07);border-color:rgba(0,245,212,.22)}
+.fopt-hz{font-size:.62rem;font-weight:700;color:var(--teal);letter-spacing:.5px;margin-bottom:2px}
+.fopt-name{font-size:.68rem;color:rgba(237,244,255,.36)}
+.ob-btn{width:100%;padding:13px;border-radius:50px;font-size:.8rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .35s;border:none;font-family:'Inter',sans-serif;margin-top:6px}
+.ob-btn.tl{background:linear-gradient(135deg,rgba(0,245,212,.17),rgba(155,93,229,.17));border:1px solid var(--border-teal);color:var(--teal)}
+.ob-btn.tl:hover{box-shadow:0 0 32px rgba(0,245,212,.16);transform:translateY(-2px)}
+.ob-btn.cl{background:linear-gradient(135deg,rgba(193,127,62,.2),rgba(232,168,74,.11));border:1px solid rgba(193,127,62,.36);color:var(--ca)}
+.ob-btn.cl:hover{box-shadow:0 0 28px rgba(193,127,62,.16);transform:translateY(-2px)}
+.ob-switch{text-align:center;margin-top:12px;font-size:.72rem;color:rgba(237,244,255,.22);cursor:pointer;transition:color .22s}
+.ob-switch:hover{color:rgba(237,244,255,.4)}
+
+/* APP SHELL */
+.app-shell{display:flex;min-height:100vh;padding-top:60px}
+.sb{width:210px;flex-shrink:0;background:rgba(0,3,10,.97);border-right:1px solid var(--border);position:fixed;top:60px;bottom:0;left:0;overflow-y:auto;z-index:200;display:flex;flex-direction:column}
+.sb-sec{padding:18px 12px 6px}
+.sb-lbl{font-size:.58rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(237,244,255,.16);padding:0 8px;margin-bottom:6px}
+.si{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:all .2s;color:rgba(237,244,255,.35);font-size:.75rem;font-weight:500;letter-spacing:.2px}
+.si:hover{background:rgba(255,255,255,.04);color:rgba(237,244,255,.65)}
+.si.on{background:rgba(0,245,212,.07);color:var(--teal);border:1px solid rgba(0,245,212,.1)}
+.si.on.cl-on{background:rgba(193,127,62,.07);color:var(--ca);border-color:rgba(193,127,62,.12)}
+.si-icon{font-size:.9rem;min-width:14px}
+.si-bdg{margin-left:auto;min-width:16px;height:16px;border-radius:8px;background:rgba(0,245,212,.18);color:var(--teal);font-size:.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.si-lock{margin-left:auto;font-size:.6rem;opacity:.35}
+.sb-div{height:1px;background:var(--border);margin:8px 12px}
+.sb-upgrade-card{margin:12px;background:rgba(0,245,212,.05);border:1px solid rgba(0,245,212,.12);border-radius:12px;padding:14px;display:none}
+.sb-upgrade-card.show{display:block}
+.sb-uc-title{font-size:.72rem;font-weight:600;color:var(--white);margin-bottom:4px}
+.sb-uc-sub{font-size:.65rem;color:rgba(237,244,255,.38);margin-bottom:10px;line-height:1.5}
+.sb-uc-btn{width:100%;padding:8px;background:rgba(0,245,212,.12);border:1px solid rgba(0,245,212,.22);border-radius:8px;color:var(--teal);font-size:.65rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.sb-uc-btn:hover{background:rgba(0,245,212,.2)}
+.sb-user{padding:14px 12px;border-top:1px solid var(--border);margin-top:auto;display:flex;align-items:center;gap:8px}
+.sb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+.sb-uname{font-size:.72rem;font-weight:600;color:rgba(237,244,255,.48)}
+.sb-uplan{font-size:.62rem;color:rgba(237,244,255,.22)}
+
+.am{margin-left:210px;flex:1;padding:24px 26px;position:relative;z-index:2;min-height:calc(100vh - 60px)}
+.panel{display:none}
+.panel.on{display:block;animation:pgIn .3s ease}
+.panel-h{font-family:'Cinzel Decorative',serif;font-size:1.3rem;margin-bottom:4px}
+.panel-s{font-size:.8rem;color:rgba(237,244,255,.38);margin-bottom:20px;font-weight:300}
+
+/* DASHBOARD */
+.dash-top{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.dc{background:rgba(3,13,28,.8);border:1px solid var(--border);border-radius:14px;padding:16px}
+.dc-l{font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.25);margin-bottom:6px}
+.dc-v{font-size:1.35rem;font-weight:700;letter-spacing:-.5px;margin-bottom:2px}
+.dc-s{font-size:.65rem;color:rgba(237,244,255,.25)}
+.dash-mid{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;margin-bottom:14px}
+.dash-bot{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dbc{background:rgba(3,13,28,.8);border:1px solid var(--border);border-radius:14px;padding:18px}
+.dbc-t{font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.22);margin-bottom:10px}
+.freq-rec{background:rgba(0,245,212,.05);border:1px solid rgba(0,245,212,.09);border-radius:11px;padding:12px 16px;margin-bottom:9px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .25s}
+.freq-rec:hover{background:rgba(0,245,212,.09);border-color:rgba(0,245,212,.18)}
+.fr-hz{font-size:.88rem;font-weight:700;color:var(--teal);min-width:58px}
+.fr-name{font-size:.75rem;font-weight:600;color:var(--white);margin-bottom:1px}
+.fr-why{font-size:.68rem;color:rgba(237,244,255,.35)}
+.fr-play{padding:5px 11px;background:transparent;border:1px solid rgba(0,245,212,.16);border-radius:50px;color:var(--teal);font-size:.62rem;font-weight:600;cursor:pointer;transition:all .25s;white-space:nowrap;font-family:'Inter',sans-serif}
+.fr-play:hover{background:rgba(0,245,212,.1)}
+
+/* CHAKRAS */
+.ck-grid{display:flex;flex-direction:column;gap:8px}
+.ck-row{display:grid;grid-template-columns:85px 38px 1fr 70px;align-items:center;gap:12px;padding:12px 15px;background:rgba(3,13,28,.65);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .25s}
+.ck-row:hover{background:rgba(3,13,28,.9);transform:translateX(3px)}
+.ck-row.on{border-color:rgba(0,245,212,.14);background:rgba(0,245,212,.04)}
+.ck-name{font-size:.7rem;font-weight:600;letter-spacing:.5px}
+.ck-orb{width:32px;height:32px;border-radius:50%;position:relative}
+.ck-orb::before{content:'';position:absolute;inset:-3px;border-radius:50%;border:1px solid currentColor;opacity:.16;animation:ckR 3.5s ease-in-out infinite}
+@keyframes ckR{0%,100%{transform:scale(1);opacity:.1}50%{transform:scale(1.4);opacity:.45}}
+.ck-hz{font-size:.78rem;font-weight:700;letter-spacing:.5px;margin-bottom:1px}
+.ck-intent{font-size:.68rem;color:rgba(237,244,255,.3)}
+.ck-det{grid-column:1/-1;overflow:hidden;max-height:0;opacity:0;transition:max-height .4s ease,opacity .4s;font-size:.76rem;color:rgba(237,244,255,.42);line-height:1.7;font-style:italic;font-family:'Cormorant Garamond',serif}
+.ck-row.on .ck-det{max-height:80px;opacity:1;padding:6px 0 2px}
+.ck-play{padding:5px 11px;background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:50px;color:rgba(237,244,255,.3);font-size:.62rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.ck-play:hover{border-color:var(--teal);color:var(--teal)}
+
+/* BREATH */
+.br-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:420px;margin:0 auto}
+.br-outer{position:relative;width:190px;height:190px}
+#brC{position:absolute;inset:0}
+.br-lbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.br-ph{font-size:.7rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--teal)}
+.br-ct{font-size:2rem;font-weight:700;color:var(--white);line-height:1;font-family:'Inter',sans-serif}
+.br-ins{font-size:.78rem;color:rgba(237,244,255,.3);text-align:center}
+.br-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.br-btn{padding:7px 16px;background:transparent;border:1px solid rgba(0,245,212,.16);border-radius:50px;color:rgba(0,245,212,.44);font-size:.68rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.br-btn:hover,.br-btn.on{background:rgba(0,245,212,.07);border-color:var(--teal);color:var(--teal)}
+
+/* MANDALA */
+.mnd-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+#mndC{cursor:pointer;filter:drop-shadow(0 0 16px rgba(155,93,229,.22))}
+.mnd-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mnd-btn{padding:6px 15px;background:transparent;border:1px solid rgba(155,93,229,.18);border-radius:50px;color:rgba(155,93,229,.46);font-size:.68rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.mnd-btn:hover,.mnd-btn.on{background:rgba(155,93,229,.07);border-color:var(--violet);color:var(--violet)}
+
+/* ORACLE */
+.orc-wrap{max-width:580px;margin:0 auto}
+.orc-portal{position:relative;width:140px;height:140px;margin:0 auto 20px;cursor:pointer}
+.opr{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(155,93,229,.24);animation:opS 10s linear infinite}
+.opr:nth-child(2){inset:14px;border-color:rgba(0,245,212,.15);animation-duration:16s;animation-direction:reverse}
+.opr:nth-child(3){inset:28px;border-color:rgba(247,197,159,.1);animation-duration:7s}
+@keyframes opS{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.opd{position:absolute;top:50%;left:50%;border-radius:50%;width:5px;height:5px;transform-origin:0 0}
+.opd1{background:var(--teal);box-shadow:0 0 7px var(--teal);animation:opd1 5s linear infinite}
+.opd2{background:var(--violet);box-shadow:0 0 7px var(--violet);animation:opd2 9s linear infinite}
+@keyframes opd1{from{transform:translate(-50%,-50%) rotate(0deg) translateX(65px)}to{transform:translate(-50%,-50%) rotate(360deg) translateX(65px)}}
+@keyframes opd2{from{transform:translate(-50%,-50%) rotate(180deg) translateX(52px)}to{transform:translate(-50%,-50%) rotate(540deg) translateX(52px)}}
+.op-eye{position:absolute;inset:44px;border-radius:50%;background:radial-gradient(ellipse,rgba(155,93,229,.16),rgba(0,245,212,.06),transparent);border:1px solid rgba(155,93,229,.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:transform .35s}
+.orc-portal:hover .op-eye{transform:scale(1.1)}
+.orc-input{width:100%;padding:11px 14px;background:rgba(0,0,0,.48);border:1px solid rgba(155,93,229,.14);border-radius:10px;color:var(--white);font-family:'Cormorant Garamond',serif;font-size:.9rem;font-style:italic;outline:none;transition:border-color .25s;resize:none;min-height:62px;margin-bottom:10px}
+.orc-input:focus{border-color:rgba(155,93,229,.3)}
+.orc-result{background:rgba(0,0,0,.45);border:1px solid rgba(155,93,229,.1);border-radius:14px;padding:20px;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin-bottom:12px}
+.orc-text{font-size:1rem;font-style:italic;font-weight:300;color:var(--white);line-height:1.8;transition:opacity .45s;font-family:'Cormorant Garamond',serif}
+.orc-src{font-size:.58rem;font-weight:600;letter-spacing:2px;color:var(--violet);text-transform:uppercase;margin-top:8px}
+.orc-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.orc-btn{padding:9px 22px;background:linear-gradient(135deg,rgba(155,93,229,.12),rgba(0,245,212,.07));border:1px solid rgba(155,93,229,.27);border-radius:50px;color:var(--violet);font-size:.7rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.orc-btn:hover{box-shadow:0 0 20px rgba(155,93,229,.14);transform:translateY(-1px)}
+.orc-btn.rnd{background:transparent;border-color:var(--border);color:rgba(237,244,255,.28)}
+.orc-btn.rnd:hover{border-color:rgba(237,244,255,.15);color:var(--white)}
+.ldg{display:flex;gap:5px;align-items:center;justify-content:center}
+.ldg span{width:6px;height:6px;border-radius:50%;background:var(--violet);animation:ldA 1.2s ease-in-out infinite}
+.ldg span:nth-child(2){animation-delay:.2s}.ldg span:nth-child(3){animation-delay:.4s}
+@keyframes ldA{0%,80%,100%{transform:scale(.5);opacity:.25}40%{transform:scale(1);opacity:1}}
+
+/* CLAUDE */
+.cl-conv{background:rgba(8,4,1,.65);border:1px solid rgba(193,127,62,.11);border-radius:14px;padding:16px;min-height:180px;max-height:360px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:12px}
+.cl-msg{display:flex;gap:8px;align-items:flex-start}
+.cl-msg.u{flex-direction:row-reverse}
+.cl-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem}
+.cl-av.ai{background:linear-gradient(135deg,rgba(193,127,62,.26),rgba(232,168,74,.14));border:1px solid rgba(193,127,62,.24)}
+.cl-av.us{background:rgba(155,93,229,.15);border:1px solid rgba(155,93,229,.24)}
+.cl-bub{max-width:84%;padding:9px 14px;border-radius:12px;font-size:.82rem;line-height:1.72;font-style:italic;font-family:'Cormorant Garamond',serif}
+.cl-bub.ai{background:rgba(193,127,62,.07);border:1px solid rgba(193,127,62,.1);color:rgba(237,244,255,.75);border-top-left-radius:3px}
+.cl-bub.us{background:rgba(155,93,229,.08);border:1px solid rgba(155,93,229,.11);color:rgba(237,244,255,.65);border-top-right-radius:3px}
+.cl-input-row{display:flex;gap:8px}
+.cl-inp{flex:1;padding:10px 14px;background:rgba(8,4,1,.7);border:1px solid rgba(193,127,62,.17);border-radius:10px;color:var(--white);font-family:'Cormorant Garamond',serif;font-size:.85rem;font-style:italic;outline:none;transition:border-color .25s}
+.cl-inp:focus{border-color:rgba(193,127,62,.34)}
+.cl-send{padding:10px 18px;background:linear-gradient(135deg,rgba(193,127,62,.2),rgba(232,168,74,.1));border:1px solid rgba(193,127,62,.34);border-radius:10px;color:var(--ca);font-size:.65rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif;white-space:nowrap}
+.cl-send:hover{box-shadow:0 0 14px rgba(193,127,62,.14)}
+.typ{display:flex;gap:4px;align-items:center}
+.typ span{width:4px;height:4px;border-radius:50%;background:var(--ca);animation:typA 1.4s ease-in-out infinite}
+.typ span:nth-child(2){animation-delay:.2s}.typ span:nth-child(3){animation-delay:.4s}
+@keyframes typA{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+/* JOURNAL */
+.j-compose{background:rgba(3,13,28,.85);border:1px solid rgba(0,245,212,.12);border-radius:13px;padding:18px;margin-bottom:13px;display:none}
+.j-compose.show{display:block;animation:pgIn .28s ease}
+.j-ta{width:100%;padding:10px 13px;background:rgba(0,0,0,.42);border:1px solid var(--border);border-radius:9px;color:var(--white);font-family:'Cormorant Garamond',serif;font-size:.88rem;font-style:italic;outline:none;resize:none;min-height:80px;transition:border-color .25s;margin-bottom:10px}
+.j-ta:focus{border-color:rgba(0,245,212,.22)}
+.j-moods{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.j-mood{padding:5px 12px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:50px;font-size:.65rem;font-weight:600;cursor:pointer;transition:all .25s;color:rgba(237,244,255,.32);font-family:'Inter',sans-serif}
+.j-mood:hover,.j-mood.on{background:rgba(0,245,212,.07);border-color:rgba(0,245,212,.22);color:var(--teal)}
+.j-actions{display:flex;gap:8px}
+.j-save-btn{padding:8px 20px;background:rgba(0,245,212,.1);border:1px solid rgba(0,245,212,.2);border-radius:50px;color:var(--teal);font-size:.68rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.j-save-btn:hover{background:rgba(0,245,212,.17)}
+.j-ai-btn{padding:8px 18px;background:rgba(155,93,229,.09);border:1px solid rgba(155,93,229,.2);border-radius:50px;color:var(--violet);font-size:.68rem;font-weight:600;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+.j-ai-btn:hover{background:rgba(155,93,229,.15)}
+.j-entries{display:flex;flex-direction:column;gap:10px}
+.j-entry{background:rgba(3,13,28,.65);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .25s}
+.j-entry:hover{border-color:rgba(255,255,255,.09)}
+.j-entry-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.j-date{font-size:.58rem;font-weight:600;color:rgba(237,244,255,.24);letter-spacing:.5px}
+.j-mood-tag{padding:2px 8px;border-radius:50px;font-size:.58rem;font-weight:600;letter-spacing:.5px}
+.j-text{font-size:.82rem;font-style:italic;color:rgba(237,244,255,.56);line-height:1.72;font-family:'Cormorant Garamond',serif}
+.j-insight{margin-top:10px;padding:10px 14px;background:rgba(155,93,229,.06);border:1px solid rgba(155,93,229,.12);border-radius:8px;font-size:.75rem;font-style:italic;color:rgba(237,244,255,.44);line-height:1.65;font-family:'Cormorant Garamond',serif}
+.j-insight-lbl{font-size:.58rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--violet);margin-bottom:4px;font-family:'Inter',sans-serif}
+
+/* COMMUNITY */
+.comm-feed{display:flex;flex-direction:column;gap:10px;max-width:620px}
+.c-post{background:rgba(3,13,28,.65);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .25s}
+.c-post:hover{border-color:rgba(255,255,255,.09)}
+.c-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.c-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem}
+.c-auth{font-size:.72rem;font-weight:600;color:rgba(237,244,255,.45)}
+.c-ed-tag{font-size:.6rem;color:rgba(237,244,255,.2)}
+.c-time{font-size:.62rem;color:rgba(237,244,255,.2);margin-left:auto}
+.c-text{font-size:.82rem;color:rgba(237,244,255,.58);line-height:1.72;margin-bottom:10px;font-style:italic;font-family:'Cormorant Garamond',serif}
+.c-tags{display:flex;gap:6px;flex-wrap:wrap}
+.c-tag{padding:2px 8px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:50px;font-size:.6rem;font-weight:500;color:rgba(237,244,255,.24)}
+.c-acts{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.04)}
+.c-act{font-size:.65rem;font-weight:600;color:rgba(237,244,255,.26);cursor:pointer;transition:color .2s;display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif}
+.c-act:hover{color:var(--teal)}
+
+/* PROTOCOL */
+.prot-form{background:rgba(3,13,28,.8);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.prot-gen-btn{width:100%;padding:12px;background:linear-gradient(135deg,rgba(193,127,62,.2),rgba(232,168,74,.1));border:1px solid rgba(193,127,62,.34);border-radius:50px;color:var(--ca);font-size:.78rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .35s;font-family:'Inter',sans-serif;margin-top:6px}
+.prot-gen-btn:hover{box-shadow:0 0 28px rgba(193,127,62,.16);transform:translateY(-2px)}
+.prot-result{background:linear-gradient(135deg,rgba(16,8,2,.85),rgba(24,12,2,.85));border:1px solid rgba(193,127,62,.13);border-radius:16px;padding:24px;display:none}
+.prot-result.show{display:block;animation:pgIn .35s ease}
+.prot-result-h{font-family:'Cinzel Decorative',serif;font-size:1rem;background:linear-gradient(90deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:13px}
+.prot-sec{margin-bottom:16px}
+.prot-sec-t{font-size:.6rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(193,127,62,.6);margin-bottom:8px}
+.prot-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.prot-item:last-child{border-bottom:none}
+.prot-item-i{font-size:.9rem;min-width:17px}
+.prot-item-t{font-size:.78rem;font-style:italic;color:rgba(237,244,255,.5);line-height:1.55;font-family:'Cormorant Garamond',serif}
+
+/* SETTINGS */
+.stg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.stg-card{background:rgba(3,13,28,.8);border:1px solid var(--border);border-radius:13px;padding:18px}
+.stg-t{font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.24);margin-bottom:12px}
+.stg-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.stg-row:last-child{border-bottom:none}
+.stg-n{font-size:.78rem;color:rgba(237,244,255,.5)}
+.tog{width:32px;height:16px;background:rgba(255,255,255,.07);border-radius:8px;position:relative;cursor:pointer;transition:background .25s}
+.tog.on{background:rgba(0,245,212,.26)}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:rgba(237,244,255,.45);transition:all .25s}
+.tog.on::after{left:18px;background:var(--teal)}
+
+/* AUDIO */
+.aud{position:fixed;bottom:20px;right:20px;z-index:600;background:rgba(0,3,10,.95);border:1px solid rgba(0,245,212,.12);border-radius:50px;padding:7px 14px;font-size:.65rem;font-weight:600;letter-spacing:.5px;color:rgba(0,245,212,.4);display:flex;align-items:center;gap:6px;backdrop-filter:blur(12px);cursor:pointer;transition:all .25s}
+.aud:hover{border-color:rgba(0,245,212,.26);color:var(--teal)}
+.aud-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:aD 1.5s ease-in-out infinite}
+@keyframes aD{0%,100%{opacity:.18}50%{opacity:1}}
+.aud-dot.off{background:rgba(237,244,255,.15);animation:none}
+
+/* TRIAL BAR */
+.trial-bar{background:rgba(255,183,3,.06);border:1px solid rgba(255,183,3,.16);border-radius:11px;padding:11px 16px;display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.trial-txt{flex:1;font-size:.7rem;font-weight:600;color:rgba(255,183,3,.65);letter-spacing:.3px}
+.trial-timer{font-size:.72rem;font-weight:700;color:var(--amber);letter-spacing:1px}
+.trial-up-btn{padding:6px 14px;background:rgba(255,183,3,.11);border:1px solid rgba(255,183,3,.22);border-radius:50px;color:var(--amber);font-size:.62rem;font-weight:600;cursor:pointer;transition:all .25s;white-space:nowrap;font-family:'Inter',sans-serif}
+.trial-up-btn:hover{background:rgba(255,183,3,.18)}
+
+@media(max-width:768px){
+  .nav-center{display:none}
+  .sb{transform:translateX(-100%)}.am{margin-left:0}
+  .dash-top{grid-template-columns:repeat(2,1fr)}.dash-mid,.dash-bot{grid-template-columns:1fr}
+  .problem-solution,.features-deep,.steps-grid,.pricing-grid{grid-template-columns:1fr}
+  .lf-top{grid-template-columns:1fr 1fr}
+  .compare-wrap{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+<div id="cr"></div><div id="cd"></div>
+<canvas id="nebula"></canvas>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="mAdept">
+  <div class="modal modal-std">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal('mAdept')">✕</button>
+      <span class="modal-tag" style="color:var(--violet)">Adept Plan</span>
+      <div class="modal-h" style="background:linear-gradient(135deg,var(--violet),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Unlock the Full Practice</div>
+      <div class="modal-sub">All 7 chakras, unlimited oracle, full community access, and unlimited journaling.</div>
+    </div>
+    <div class="modal-body">
+      <div id="adeptForm">
+        <div class="plan-toggle">
+          <div class="pt-opt sel" onclick="selPlan(this,false)"><div class="pt-name">Monthly</div><div class="pt-price" style="color:var(--violet)">$12</div><div class="pt-sub">per month</div></div>
+          <div class="pt-opt" onclick="selPlan(this,false)"><div class="pt-name">Annual</div><div class="pt-price" style="color:var(--teal)">$115</div><div class="pt-sub">per year</div><div class="pt-save">Save 20%</div></div>
+        </div>
+        <label class="sf-label">Email</label>
+        <input class="sf-input" type="email" placeholder="your@email.com">
+        <button class="pay-btn" style="background:linear-gradient(135deg,rgba(155,93,229,.26),rgba(0,245,212,.14));border:1px solid rgba(155,93,229,.4);color:var(--white)" onclick="doPay('adept')">Continue to secure checkout</button>
+        <div class="stripe-lock">Payment is completed on Stripe's checkout page — we never see your card · Cancel anytime</div>
+      </div>
+      <div class="processing" id="adeptProc"><div class="spinner"></div><div class="proc-txt">Processing…</div></div>
+      <div class="success-state" id="adeptSucc">
+        <div class="success-icon" style="background:rgba(155,93,229,.14);border:1px solid rgba(155,93,229,.3);box-shadow:0 0 26px rgba(155,93,229,.16)">✦</div>
+        <div class="success-h" style="background:linear-gradient(90deg,var(--violet),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Welcome to Adept</div>
+        <div class="success-sub">Your full practice is now unlocked. All 7 chakras, unlimited oracle, and the complete solfeggio scale are ready.</div>
+        <button class="success-btn" style="background:rgba(155,93,229,.14);border:1px solid rgba(155,93,229,.28);color:var(--violet)" onclick="activatePlan('adept')">Enter Full Practice →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="mClaude">
+  <div class="modal modal-cl">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal('mClaude')" style="border-color:rgba(193,127,62,.18)">✕</button>
+      <span class="modal-tag" style="color:var(--ca)">Claude Edition — AI Practice Guide</span>
+      <div class="modal-h" style="background:linear-gradient(135deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Your Personal AI Guide</div>
+      <div class="modal-sub">Claude uses your name, intention and the conversation so far to guide your practice.</div>
+    </div>
+    <div class="modal-body">
+      <div id="claudeForm">
+        <div class="plan-toggle">
+          <div class="pt-opt sel sel-cl" onclick="selPlan(this,true)"><div class="pt-name">Monthly</div><div class="pt-price" style="color:var(--ca)">$24</div><div class="pt-sub">per month</div></div>
+          <div class="pt-opt" onclick="selPlan(this,true)"><div class="pt-name">Annual</div><div class="pt-price" style="color:var(--ca)">$230</div><div class="pt-sub">per year</div><div class="pt-save">Save 20%</div></div>
+        </div>
+        <label class="sf-label" style="color:rgba(232,168,74,.38)">Email</label>
+        <input class="sf-input cl" type="email" style="border-color:rgba(193,127,62,.18)" placeholder="your@email.com">
+        <button class="pay-btn" style="background:linear-gradient(135deg,rgba(193,127,62,.26),rgba(232,168,74,.14));border:1px solid rgba(193,127,62,.42);color:var(--white)" onclick="doPay('claude')">Continue to secure checkout</button>
+        <div class="stripe-lock">Payment is completed on Stripe's checkout page — we never see your card · Cancel anytime</div>
+      </div>
+      <div class="processing" id="claudeProc"><div class="spinner" style="border-top-color:var(--ca)"></div><div class="proc-txt" style="color:rgba(232,168,74,.4)">Activating Claude Edition…</div></div>
+      <div class="success-state" id="claudeSucc">
+        <div class="success-icon" style="background:rgba(193,127,62,.12);border:1px solid rgba(193,127,62,.28);box-shadow:0 0 24px rgba(193,127,62,.16)">☯</div>
+        <div class="success-h" style="background:linear-gradient(90deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Claude Edition Active</div>
+        <div class="success-sub">Your AI practice guide is ready. Claude uses your intention and conversation to guide you.</div>
+        <button class="success-btn" style="background:rgba(193,127,62,.12);border:1px solid rgba(193,127,62,.26);color:var(--ca)" onclick="activatePlan('claude')">Enter Claude Edition →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div style="cursor:pointer" onclick="goPage('landing')">
+    <div class="nav-logo">QUANTRA</div>
+    <div class="nav-tagline">Daily Practice · Guided by AI</div>
+  </div>
+  <div class="nav-center" id="landNav">
+    <a onclick="scrollSec('why')">Why It Works</a>
+    <a onclick="scrollSec('features')">Features</a>
+    <a onclick="scrollSec('pricing')">Pricing</a>
+    <a onclick="scrollSec('faq')">FAQ</a>
+  </div>
+  <div class="nav-center" id="appNav" style="display:none">
+    <a onclick="goPanel('dashboard')">Home</a>
+    <a onclick="goPanel('chakras')">Chakras</a>
+    <a onclick="goPanel('oracle')">Oracle</a>
+    <a onclick="goPanel('claude-ai')">✦ Claude AI</a>
+    <a onclick="goPanel('journal')">Journal</a>
+  </div>
+  <div class="nav-right" id="landRight">
+    <button class="btn btn-ghost" onclick="goPage('ob-standard')">Sign In</button>
+    <button class="btn btn-primary" onclick="goPage('ob-standard')">Start Free</button>
+    <button class="btn btn-claude" onclick="goPage('ob-claude')">✦ Claude Edition</button>
+  </div>
+  <div class="nav-right btn-app-right" id="appRight">
+    <button class="btn btn-ghost" onclick="toggleAudio()">♬</button>
+    <button class="btn btn-primary" id="navUpgradeBtn" onclick="openModal('mAdept')">↑ Upgrade</button>
+    <button class="btn btn-ghost" onclick="goPage('landing')">Exit</button>
+  </div>
+</nav>
+
+<!-- ═══════════ LANDING ═══════════ -->
+<div class="page active" id="page-landing">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="outcome-pill"><div class="op-dot"></div>Tones, breath and reflection in a daily practice — free to start</div>
+  <div class="hero-visual">
+    <canvas id="heroC" width="300" height="300"></canvas>
+    <div class="hero-orb"><div class="h-orb-inner">☯</div></div>
+  </div>
+  <h1 class="hero-h1">QUANTRA</h1>
+  <div class="hero-sub-brand">Sacred Geometry and Sound</div>
+  <p class="hero-value">The <strong>one app</strong> that combines solfeggio frequencies, sacred geometry, and a <strong>personal AI practice guide</strong> — all in one daily practice.</p>
+  <p class="hero-subvalue">10 minutes a day. A calmer routine. A guide that responds to what you share.</p>
+  <div class="hero-btns">
+    <button class="h-cta-main" onclick="goPage('ob-standard')">Start Free — No Card Needed</button>
+    <button class="h-cta-cl" onclick="goPage('ob-claude')">☯ Try Claude Edition — $24/mo</button>
+    <button class="h-cta-ghost" onclick="scrollSec('pricing')">See all plans</button>
+  </div>
+  <div class="social-proof">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="sp-avatars">
+        <div class="sp-av" style="background:rgba(0,245,212,.15);border-color:rgba(0,245,212,.2)">🌿</div>
+        <div class="sp-av" style="background:rgba(193,127,62,.15);border-color:rgba(193,127,62,.2)">✦</div>
+        <div class="sp-av" style="background:rgba(155,93,229,.15);border-color:rgba(155,93,229,.2)">☽</div>
+        <div class="sp-av" style="background:rgba(76,201,240,.15);border-color:rgba(76,201,240,.2)">◎</div>
+      </div>
+      <div class="sp-text"><strong>Free</strong> to start · no card needed</div>
+    </div>
+    <div class="sp-divider"></div>
+    <div style="display:flex;align-items:center;gap:6px">
+      
+      <span class="sp-rating">New · early access</span>
+    </div>
+    <div class="sp-divider"></div>
+    <div class="sp-text">Free plan, no card · <strong>Cancel anytime</strong></div>
+  </div>
+</section>
+
+<div class="dv"><span class="dv-s">◈ · · · ◈</span></div>
+
+<!-- WHY IT WORKS — PROBLEM/SOLUTION -->
+<section class="sec rv" id="why">
+  <div class="sec-center">
+    <div class="sec-label">The Problem</div>
+    <h2 class="sec-h" style="background:linear-gradient(90deg,var(--white),rgba(237,244,255,.6));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">You Already Know You Need This</h2>
+    <p class="sec-sub">Most healing tools are either too vague to use daily, or too generic to actually help you. Here's what's different.</p>
+  </div>
+  <div class="problem-solution">
+    <div class="ps-col">
+      <div class="ps-label problem-lbl">✗ &nbsp;The Problem</div>
+      <div class="ps-items">
+        <div class="ps-item"><span class="ps-item-icon">😞</span>Meditation apps are passive — you listen but nothing guides you deeper</div>
+        <div class="ps-item"><span class="ps-item-icon">🔇</span>Frequency playlists are just audio — no context, no intention, no feedback</div>
+        <div class="ps-item"><span class="ps-item-icon">💬</span>Therapists are expensive, weekly, and can't be with you in the moment</div>
+        <div class="ps-item"><span class="ps-item-icon">📚</span>Healing books give knowledge but not practice — you read, then forget</div>
+        <div class="ps-item"><span class="ps-item-icon">🤖</span>AI tools are generic — they don't know your journey or your pain</div>
+      </div>
+    </div>
+    <div class="ps-col solution">
+      <div class="ps-label solution-lbl">✦ &nbsp;QUANTRA's Solution</div>
+      <div class="ps-items">
+        <div class="ps-item"><span class="ps-item-icon" style="color:var(--teal)">✦</span>A personalised daily practice — frequencies, breath, geometry, and AI guidance combined</div>
+        <div class="ps-item"><span class="ps-item-icon" style="color:var(--teal)">✦</span>Solfeggio tones you actually hear, tuned to the chakra you need today</div>
+        <div class="ps-item"><span class="ps-item-icon" style="color:var(--teal)">✦</span>Claude AI that uses your name, question and intention within a conversation</div>
+        <div class="ps-item"><span class="ps-item-icon" style="color:var(--teal)">✦</span>Journal with AI insight that connects your experience to real healing principles</div>
+        <div class="ps-item"><span class="ps-item-icon" style="color:var(--teal)">✦</span>A practice plan generated from your intention</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="dv"><span class="dv-s">∞ · · · ∞</span></div>
+
+<!-- HOW IT WORKS -->
+<section class="sec rv">
+  <div class="sec-center">
+    <div class="sec-label">How It Works</div>
+    <h2 class="sec-h" style="background:linear-gradient(90deg,var(--teal),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">10 Minutes a Day. A Real Practice.</h2>
+    <p class="sec-sub">A structured daily practice drawing on sound-meditation traditions, paced breathing and AI guidance.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-title">Set Your Intention</div>
+      <div class="step-text">Tell QUANTRA what you want to focus on. Your intention becomes the frequency of your entire practice — Claude uses it within your conversation.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-title">Receive Your Practice</div>
+      <div class="step-text">QUANTRA suggests the right frequencies for today, guides you through a paced-breathing exercise, and opens the sacred geometry field.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-title">Deepen with AI</div>
+      <div class="step-text">Journal what arose. Ask Claude anything — your guide responds with personalised insight reflecting what you share.</div>
+    </div>
+  </div>
+</section>
+
+<div class="dv"><span class="dv-s">✦ · · · ✦</span></div>
+
+<!-- WHAT TO EXPECT -->
+<section class="sec rv"><div class="sec-center"><div class="sec-label">What To Expect</div><h2 class="sec-h">An Honest Description</h2><p class="sec-sub">QUANTRA is new, so we have no member stories to show yet — and we won't invent any.</p><p class="sec-sub" style="margin-top:14px">Expect a short daily routine: a tone, a paced-breathing exercise, a geometry visual to focus on, a journal, and an AI guide to talk things through. Many people find slow breathing and quiet time relaxing; the tones and geometry are meditation aids rooted in spiritual tradition, not treatments. Results vary, and we make no medical claims.</p></div></section>
+<section class="sec rv" id="features">
+  <div class="sec-center">
+    <div class="sec-label">Every Feature</div>
+    <h2 class="sec-h" style="background:linear-gradient(90deg,var(--violet),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Built for Serious Practice</h2>
+    <p class="sec-sub">Not a gimmick. A complete toolkit — every feature supports a daily practice.</p>
+  </div>
+  <div class="features-deep">
+    <div class="fd-block"><div class="fd-icon-wrap" style="background:rgba(0,245,212,.1);border:1px solid rgba(0,245,212,.18)">⬡</div><div><div class="fd-title">Metatron's Cube + 4 Sacred Geometries</div><div class="fd-text">Live-animated sacred geometry — Flower of Life, Sri Yantra, Star Tetrahedron, Lotus. Each form is a visual frequency that gives you a visual to focus on.</div><span class="fd-tag" style="background:rgba(0,245,212,.08);border:1px solid rgba(0,245,212,.18);color:var(--teal)">All plans</span></div></div>
+    <div class="fd-block"><div class="fd-icon-wrap" style="background:rgba(193,127,62,.1);border:1px solid rgba(193,127,62,.18)">✦</div><div><div class="fd-title">Claude AI Healing Dialogue</div><div class="fd-text">Multi-turn conversation with Claude — the most advanced AI available. Claude uses your name and question within each conversation.</div><span class="fd-tag" style="background:rgba(193,127,62,.08);border:1px solid rgba(193,127,62,.18);color:var(--ca)">Claude Edition only</span></div></div>
+    <div class="fd-block"><div class="fd-icon-wrap" style="background:rgba(155,93,229,.1);border:1px solid rgba(155,93,229,.18)">∿</div><div><div class="fd-title">Solfeggio Frequency Engine</div><div class="fd-text">Real Web Audio API — not recordings, but pure sine tones at 174 Hz through 963 Hz. Chosen from the solfeggio tradition as meditation aids; evidence for specific physical effects is limited.</div><span class="fd-tag" style="background:rgba(155,93,229,.08);border:1px solid rgba(155,93,229,.18);color:var(--violet)">All plans</span></div></div>
+    <div class="fd-block"><div class="fd-icon-wrap" style="background:rgba(168,255,120,.08);border:1px solid rgba(168,255,120,.16)">⚗️</div><div><div class="fd-title">AI Healing Protocol Generator</div><div class="fd-text">Claude builds a complete 7–90 day personalised protocol — morning and evening practices, specific frequencies, breathwork pattern, sacred geometry mode, and daily affirmation.</div><span class="fd-tag" style="background:rgba(168,255,120,.06);border:1px solid rgba(168,255,120,.14);color:var(--lime)">Claude Edition only</span></div></div>
+    <div class="fd-block"><div class="fd-icon-wrap" style="background:rgba(76,201,240,.08);border:1px solid rgba(76,201,240,.16)">📓</div><div><div class="fd-title">Session Journal + AI Insight</div><div class="fd-text">Log healing sessions and request Claude's insight on any entry. What seemed like a vague feeling becomes easier to put into words. Track your evolution over time.</div><span class="fd-tag" style="background:rgba(76,201,240,.06);border:1px solid rgba(76,201,240,.14);color:var(--blue)">All plans</span></div></div>
+    <div class="fd-block"><div class="fd-icon-wrap" style="background:rgba(241,91,181,.08);border:1px solid rgba(241,91,181,.16)">◉</div><div><div class="fd-title">7-Chakra Alignment System</div><div class="fd-text">All seven energy centres with their specific solfeggio frequencies. Tap to hear the tone, read the healing intention, and learn the tradition behind it. Rooted in tradition.</div><span class="fd-tag" style="background:rgba(241,91,181,.06);border:1px solid rgba(241,91,181,.14);color:var(--rose)">Adept + Claude</span></div></div>
+  </div>
+</section>
+
+<div class="dv"><span class="dv-s">☽ · · · ☽</span></div>
+
+<section class="sec rv">
+  <div class="sec-center">
+    <div class="sec-label">vs The Alternatives</div>
+    <h2 class="sec-h" style="background:linear-gradient(90deg,var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Why Not Just Use Calm?</h2>
+    <p class="sec-sub">Fair question. Here's the honest comparison.</p>
+  </div>
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="q-col">QUANTRA</th>
+          <th>Calm / Headspace</th>
+          <th>Spotify Frequencies</th>
+          <th>Therapist</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Personalised to your intention</td><td class="q-col c-yes">✦ Yes</td><td class="c-no">✗ No</td><td class="c-no">✗ No</td><td class="c-yes">✓ Yes</td></tr>
+        <tr><td>Remembers your history</td><td class="q-col c-yes">✦ In-session</td><td class="c-no">✗ No</td><td class="c-no">✗ No</td><td class="c-yes">✓ Yes</td></tr>
+        <tr><td>Available 24/7</td><td class="q-col c-yes">✦ Yes</td><td class="c-yes">✓ Yes</td><td class="c-yes">✓ Yes</td><td class="c-no">✗ Weekly only</td></tr>
+        <tr><td>Solfeggio healing tones</td><td class="q-col c-yes">✦ Real tones</td><td class="c-no">✗ No</td><td class="c-partial">~ Recordings</td><td class="c-no">✗ No</td></tr>
+        <tr><td>AI healing guidance</td><td class="q-col c-yes">✦ Claude AI</td><td class="c-no">✗ No</td><td class="c-no">✗ No</td><td class="c-no">✗ No</td></tr>
+        <tr><td>Sacred geometry visuals</td><td class="q-col c-yes">✦ 5 forms live</td><td class="c-no">✗ No</td><td class="c-no">✗ No</td><td class="c-no">✗ No</td></tr>
+        <tr><td>Session journal + insight</td><td class="q-col c-yes">✦ AI insight</td><td class="c-partial">~ Basic</td><td class="c-no">✗ No</td><td class="c-yes">✓ Yes</td></tr>
+        <tr><td>Monthly cost</td><td class="q-col" style="color:var(--teal);font-weight:600">$0–$24</td><td>$13/mo</td><td>$11/mo</td><td>$150+/session</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="dv"><span class="dv-s">∞ · · · ∞</span></div>
+
+<!-- PRICING -->
+<section class="sec rv" id="pricing">
+  <div class="sec-center">
+    <div class="sec-label">Simple Pricing</div>
+    <h2 class="sec-h" style="background:linear-gradient(90deg,var(--violet),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Start Free. Upgrade When Ready.</h2>
+    <p class="sec-sub">Start free with no card. Paid plans are billed through Stripe checkout. Cancel anytime.</p>
+  </div>
+  <div class="pricing-grid">
+    <!-- Free -->
+    <div class="pc pc-free">
+      <span class="pc-tier" style="color:rgba(237,244,255,.3)">Seeker</span>
+      <div class="pc-price-wrap"><span class="pc-price" style="color:var(--teal)">$0</span></div>
+      <div class="pc-annual" style="color:transparent">–</div>
+      <div class="pc-name" style="background:linear-gradient(90deg,var(--teal),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Free Forever</div>
+      <div class="pc-desc">The essentials. A real daily practice you can start right now — no card, no commitment.</div>
+      <ul class="pc-feats">
+        <li><span style="color:var(--teal)">✦</span>Metatron's Cube + Lotus Mandala</li>
+        <li><span style="color:var(--teal)">✦</span>3 chakras with healing tones</li>
+        <li><span style="color:var(--teal)">✦</span>Heart Coherence breathing guide</li>
+        <li><span style="color:var(--teal)">✦</span>10 oracle transmissions/month</li>
+        <li><span style="color:var(--teal)">✦</span>Journal — 10 entries</li>
+        <li><span style="color:rgba(237,244,255,.2)">○</span><span style="color:rgba(237,244,255,.28)">All 7 chakras (locked)</span></li>
+        <li><span style="color:rgba(237,244,255,.2)">○</span><span style="color:rgba(237,244,255,.28)">Claude AI dialogue (locked)</span></li>
+      </ul>
+      <button class="pc-cta" style="background:linear-gradient(135deg,rgba(0,245,212,.13),rgba(0,187,249,.09));border:1px solid rgba(0,245,212,.25);color:var(--teal)" onclick="goPage('ob-standard')">Start Free — No Card</button>
+    </div>
+    <!-- Adept -->
+    <div class="pc pc-adept">
+      <div class="pc-pop">Most Popular</div>
+      <span class="pc-tier" style="color:var(--violet)">Adept</span>
+      <div class="pc-price-wrap"><span class="pc-price" style="color:var(--violet)">$12</span><span class="pc-period">/mo</span></div>
+      <div class="pc-annual">Or $115/year — save 20%</div>
+      <div class="pc-name" style="background:linear-gradient(135deg,var(--violet),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Adept Practice</div>
+      <div class="pc-desc">Everything you need for a serious daily practice. Complete, unlimited, and evolving.</div>
+      <ul class="pc-feats">
+        <li><span style="color:var(--violet)">✦</span>All 7 chakras + full solfeggio scale</li>
+        <li><span style="color:var(--violet)">✦</span>All 5 sacred geometry modes</li>
+        <li><span style="color:var(--violet)">✦</span>Unlimited oracle transmissions</li>
+        <li><span style="color:var(--violet)">✦</span>All 3 breath pattern systems</li>
+        <li><span style="color:var(--violet)">✦</span>Unlimited journal + community</li>
+        <li><span style="color:var(--violet)">✦</span>Frequency suggestions daily</li>
+        <li><span style="color:rgba(237,244,255,.2)">○</span><span style="color:rgba(237,244,255,.28)">Claude AI dialogue (Claude Ed.)</span></li>
+      </ul>
+      <button class="pc-cta" style="background:linear-gradient(135deg,rgba(155,93,229,.22),rgba(0,245,212,.1));border:1px solid rgba(155,93,229,.36);color:var(--violet)" onclick="openModal('mAdept')">Subscribe</button>
+      <div class="pc-guarantee">Cancel anytime</div>
+    </div>
+    <!-- Claude -->
+    <div class="pc pc-claude">
+      <span class="pc-tier" style="color:var(--ca)">Claude Edition</span>
+      <div class="pc-price-wrap"><span class="pc-price" style="color:var(--ca)">$24</span><span class="pc-period">/mo</span></div>
+      <div class="pc-annual">Or $230/year — save 20%</div>
+      <div class="pc-name" style="background:linear-gradient(135deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Claude Edition</div>
+      <div class="pc-desc">Everything in Adept — plus Claude as your personal AI practice guide that grows with you.</div>
+      <ul class="pc-feats">
+        <li><span style="color:var(--ca)">✦</span>Everything in Adept</li>
+        <li><span style="color:var(--ca)">✦</span>Claude AI deep healing dialogue</li>
+        <li><span style="color:var(--ca)">✦</span>Claude uses your intention and conversation context</li>
+        <li><span style="color:var(--ca)">✦</span>AI Healing Protocol Generator</li>
+        <li><span style="color:var(--ca)">✦</span>AI insight on every journal entry</li>
+        <li><span style="color:var(--ca)">✦</span>Personalised daily suggestions</li>
+        <li><span style="color:var(--ca)">✦</span>Early access to new features</li>
+      </ul>
+      <button class="pc-cta" style="background:linear-gradient(135deg,rgba(193,127,62,.26),rgba(232,168,74,.13));border:1px solid rgba(193,127,62,.42);color:var(--ca)" onclick="openModal('mClaude')">Subscribe</button>
+      <div class="pc-guarantee">Cancel anytime</div>
+    </div>
+  </div>
+  <p class="pricing-note">Cancel anytime from settings.</p>
+</section>
+
+<div class="dv"><span class="dv-s">✦ · · · ✦</span></div>
+
+<!-- RISK REVERSAL -->
+<section class="sec rv" style="padding-top:60px;padding-bottom:60px">
+  <div class="sec-center" style="margin-bottom:36px">
+    <div class="sec-label">Our Promise</div>
+    <h2 class="sec-h" style="font-size:clamp(1.4rem,2.5vw,2rem);background:linear-gradient(90deg,var(--white),rgba(237,244,255,.5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Try It Free.</h2>
+  </div>
+  <div class="risk-row">
+    <div class="risk-item"><span class="risk-item-icon">🔓</span>No card required to start free</div>
+    <div class="risk-item"><span class="risk-item-icon">⏱</span>Free plan, no card needed</div>
+    <div class="risk-item"><span class="risk-item-icon">💸</span>Cancel anytime, instant, no questions</div>
+    <div class="risk-item"><span class="risk-item-icon">🔒</span>Payments handled by Stripe</div>
+    <div class="risk-item"><span class="risk-item-icon">📧</span>Billing question? Contact support</div>
+  </div>
+</section>
+
+<div class="dv"><span class="dv-s">◎ · · · ◎</span></div>
+
+<!-- FAQ -->
+<section class="sec rv" id="faq">
+  <div class="sec-center">
+    <div class="sec-label">Questions</div>
+    <h2 class="sec-h" style="background:linear-gradient(90deg,var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Frequently Asked</h2>
+  </div>
+  <div class="faq-wrap">
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does the science actually support solfeggio frequencies?</div><div class="faq-a">Honestly: evidence that specific solfeggio frequencies have special physical or healing effects is weak. QUANTRA uses them as part of a meditative tradition — as a focus for attention, alongside paced breathing, which is better studied for relaxation. We make no medical claims, and QUANTRA isn't a substitute for professional care.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How is Claude Edition different from just talking to ChatGPT?</div><div class="faq-a">Claude here is given a supportive, reflective tone and your name, intention and chat so far, and it sits alongside the tones, chakras and journal in one practice. It's a general-purpose AI with those instructions — not a licensed healer or therapist, and it can be wrong.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if I don't believe in chakras or spirituality?</div><div class="faq-a">That's fine. Slow breathing is a well-studied way to relax, and the tones and geometry are optional aids. You can use QUANTRA as a secular calm practice.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How much time does the daily practice take?</div><div class="faq-a">The minimum effective practice is 10 minutes — a frequency tone with coherence breathing. Most members spend 20–30 minutes when they include journaling and oracle. The Claude Edition dialogue is usually 5–10 minutes of conversation. You choose your depth each day.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I cancel at any time?</div><div class="faq-a">Yes. Paid plans are billed through Stripe and can be cancelled at any time; you won't be charged for the next period.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is my data private? Does Claude store my conversations?</div><div class="faq-a">Your messages are sent to Claude (Anthropic's AI) to generate replies. Chat history is kept only for your current session. Don't share information you wouldn't want an AI service to process.</div></div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="sec rv" style="padding:80px 40px;text-align:center;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(0,245,212,.04) 0,transparent 70%)">
+  <div class="sec-label" style="margin-bottom:14px">Ready?</div>
+  <h2 style="font-family:'Cinzel Decorative',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);background:linear-gradient(135deg,var(--teal),var(--white),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px">Your Practice Starts Today</h2>
+  <p style="font-size:.95rem;font-weight:300;color:var(--muted);margin-bottom:36px;max-width:440px;margin-inline:auto;line-height:1.75">10 minutes. A real practice. A guide that actually knows you. Start free — no card, no commitment, no risk.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="h-cta-main" onclick="goPage('ob-standard')">Start Free Now</button>
+    <button class="h-cta-cl" onclick="openModal('mClaude')">☯ Claude Edition — $24/mo</button>
+  </div>
+  <p style="margin-top:16px;font-size:.72rem;color:rgba(237,244,255,.22)">Free plan, no card · Cancel anytime</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="lfoot">
+  <div class="lf-inner">
+    <div class="lf-top">
+      <div><div class="lf-brand">✦ QUANTRA</div><div style="font-size:.6rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.18);margin-bottom:10px">Daily Practice · AI-Guided</div><div class="lf-desc">A platform combining solfeggio frequencies, sacred geometry, and Claude AI in one daily healing practice.</div></div>
+      <div class="lf-col"><div class="lf-col-h">Practice</div><a onclick="goPage('ob-standard')">Start Free</a><a onclick="scrollSec('features')">All Features</a><a onclick="scrollSec('pricing')">Pricing</a><a onclick="scrollSec('faq')">FAQ</a></div>
+      <div class="lf-col"><div class="lf-col-h">Healing</div><a>Solfeggio Scale</a><a>Chakra System</a><a>Coherence Breath</a><a>Sacred Geometry</a></div>
+      <div class="lf-col"><div class="lf-col-h">Company</div><a>About</a><a>Research</a><a>Community</a><a>Support</a></div>
+    </div>
+    <div class="lf-bottom">
+      <div class="lf-copy">© 2026 QUANTRA. All rights reserved.<br><span style="display:block;max-width:640px;margin:10px auto 0;font-size:.72rem;opacity:.6">QUANTRA is a meditation and reflection tool, not medical or mental-health care. It does not diagnose, treat or cure any condition, and AI responses can be wrong. If you're in crisis or thinking of harming yourself, contact local emergency services or a crisis line.</span></div>
+      <div class="lf-legal"><a>Privacy</a><a>Terms</a><a>Cookies</a></div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<!-- ═══════════ ONBOARDING ═══════════ -->
+<div class="page" id="page-ob-standard">
+<div class="ob-page">
+<div class="ob-wrap">
+  <div class="ob-steps"><div class="osd act" id="osd1">1</div><div class="osl" id="osl1"></div><div class="osd" id="osd2">2</div><div class="osl" id="osl2"></div><div class="osd" id="osd3">3</div></div>
+  <div class="ob-card">
+    <div class="ob-sp act" id="osp1">
+      <span class="ob-eyebrow" style="color:var(--teal)">Step 1 of 3 · Identity</span>
+      <div class="ob-title" style="background:linear-gradient(135deg,var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Let's Personalise Your Practice</div>
+      <div class="ob-sub">QUANTRA adapts to you — not the other way around. Tell us who you are and why you're here.</div>
+      <label class="ob-field-label">Your name</label>
+      <input class="ob-inp" type="text" placeholder="How should we address you?" id="obName">
+      <label class="ob-field-label">What brings you here?</label>
+      <div class="chips"><div class="chip" onclick="toggleChip(this)">Reduce Anxiety</div><div class="chip" onclick="toggleChip(this)">Better Sleep</div><div class="chip" onclick="toggleChip(this)">Heart Opening</div><div class="chip" onclick="toggleChip(this)">Spiritual Growth</div><div class="chip" onclick="toggleChip(this)">Daily Practice</div><div class="chip" onclick="toggleChip(this)">Emotional Healing</div><div class="chip" onclick="toggleChip(this)">Mental Clarity</div><div class="chip" onclick="toggleChip(this)">Deep Meditation</div></div>
+      <button class="ob-btn tl" onclick="obStep(2)">Continue →</button>
+    </div>
+    <div class="ob-sp" id="osp2">
+      <span class="ob-eyebrow" style="color:var(--teal)">Step 2 of 3 · Frequency</span>
+      <div class="ob-title" style="background:linear-gradient(135deg,var(--teal),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Choose Your Starting Frequency</div>
+      <div class="ob-sub">Which frequency resonates with your need right now? You can change this anytime.</div>
+      <div class="freq-sel">
+        <div class="fopt on" onclick="pickFreq(this,'432')"><div class="fopt-hz">432 Hz</div><div class="fopt-name">Universal calm</div></div>
+        <div class="fopt" onclick="pickFreq(this,'528')"><div class="fopt-hz">528 Hz</div><div class="fopt-name">Heart opening</div></div>
+        <div class="fopt" onclick="pickFreq(this,'396')"><div class="fopt-hz">396 Hz</div><div class="fopt-name">Fear release</div></div>
+        <div class="fopt" onclick="pickFreq(this,'639')"><div class="fopt-hz">639 Hz</div><div class="fopt-name">Relationships</div></div>
+        <div class="fopt" onclick="pickFreq(this,'741')"><div class="fopt-hz">741 Hz</div><div class="fopt-name">Intuition</div></div>
+        <div class="fopt" onclick="pickFreq(this,'963')"><div class="fopt-hz">963 Hz</div><div class="fopt-name">Consciousness</div></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px"><button class="ob-btn tl" style="opacity:.4;max-width:68px;font-size:.7rem" onclick="obStep(1)">← Back</button><button class="ob-btn tl" style="flex:1" onclick="obStep(3)">Continue →</button></div>
+    </div>
+    <div class="ob-sp" id="osp3">
+      <span class="ob-eyebrow" style="color:var(--teal)">Step 3 of 3 · Intention</span>
+      <div class="ob-title" style="background:linear-gradient(135deg,var(--violet),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Set Your Intention</div>
+      <div class="ob-sub">The most effective practice begins with specificity. What do you most want to change or understand?</div>
+      <label class="ob-field-label">Your intention</label>
+      <textarea class="ob-inp" rows="4" placeholder="Write freely. The more specific, the more powerful the practice..." id="obIntention"></textarea>
+      <label class="ob-field-label">Your experience with healing practices</label>
+      <select class="ob-sel" id="obLevel"><option>Brand new — just curious</option><option>Some experience meditating</option><option>Regular practice already</option><option>Practitioner or teacher</option></select>
+      <button class="ob-btn tl" onclick="enterApp(false)">Begin My Practice →</button>
+    </div>
+  </div>
+  <div class="ob-switch" onclick="goPage('ob-claude')">Want AI guidance? → Try Claude Edition</div>
+</div>
+</div>
+</div>
+
+<div class="page" id="page-ob-claude">
+<div class="ob-page" style="background:radial-gradient(ellipse 55% 45% at 50% 50%,rgba(193,127,62,.04) 0,transparent 70%)">
+<div class="ob-wrap">
+  <div class="ob-steps"><div class="osd cl-act" id="csd1">1</div><div class="osl" id="csl1"></div><div class="osd" id="csd2">2</div><div class="osl" id="csl2"></div><div class="osd" id="csd3">3</div></div>
+  <div class="ob-card cl">
+    <div class="ob-sp act" id="csp1">
+      <span class="ob-eyebrow" style="color:var(--ca)">Claude Edition · Step 1 of 3</span>
+      <div class="ob-title" style="background:linear-gradient(135deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Your AI Practice Guide</div>
+      <div class="ob-sub">Claude will use your intention and the conversation so far. This is your personalised AI healing practice.</div>
+      <label class="ob-field-label" style="color:rgba(232,168,74,.38)">Your name</label>
+      <input class="ob-inp cl" type="text" placeholder="How should Claude address you?" id="csName">
+      <label class="ob-field-label" style="color:rgba(232,168,74,.38)">What do you most need help with?</label>
+      <div class="chips"><div class="chip cl-chip" onclick="toggleChip(this)">Grief or Loss</div><div class="chip cl-chip" onclick="toggleChip(this)">Anxiety</div><div class="chip cl-chip" onclick="toggleChip(this)">Spiritual Direction</div><div class="chip cl-chip" onclick="toggleChip(this)">Relationship Healing</div><div class="chip cl-chip" onclick="toggleChip(this)">Life Transition</div><div class="chip cl-chip" onclick="toggleChip(this)">Purpose & Meaning</div><div class="chip cl-chip" onclick="toggleChip(this)">Processing Hard Experiences</div><div class="chip cl-chip" onclick="toggleChip(this)">Consciousness</div></div>
+      <button class="ob-btn cl" onclick="csStep(2)">Continue →</button>
+    </div>
+    <div class="ob-sp" id="csp2">
+      <span class="ob-eyebrow" style="color:var(--ca)">Claude Edition · Step 2 of 3</span>
+      <div class="ob-title" style="background:linear-gradient(135deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Your Core Question</div>
+      <div class="ob-sub">Claude will carry this question through your entire healing journey. Be specific — the more honest and precise, the deeper the guidance.</div>
+      <label class="ob-field-label" style="color:rgba(232,168,74,.38)">What question do you most need answered right now?</label>
+      <textarea class="ob-inp cl" rows="5" placeholder="Write freely. Claude will hold this as the foundation of your practice..." id="csSoulQ" style="border-color:rgba(193,127,62,.18)"></textarea>
+      <div style="display:flex;gap:8px;margin-top:4px"><button class="ob-btn cl" style="opacity:.4;max-width:68px;font-size:.7rem" onclick="csStep(1)">← Back</button><button class="ob-btn cl" style="flex:1" onclick="csStep(3)">Continue →</button></div>
+    </div>
+    <div class="ob-sp" id="csp3">
+      <span class="ob-eyebrow" style="color:var(--ca)">Claude Edition · Step 3 of 3</span>
+      <div class="ob-title" style="background:linear-gradient(135deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Calibrate Your Guide</div>
+      <div class="ob-sub">Help Claude calibrate the depth and style of your dialogue from the first session.</div>
+      <label class="ob-field-label" style="color:rgba(232,168,74,.38)">Your background</label>
+      <select class="ob-sel cl" style="border-color:rgba(193,127,62,.18)" id="csExp"><option>New to this kind of practice</option><option>Some meditation/healing experience</option><option>Active practitioner</option><option>Teacher, healer, or therapist</option><option>Deep spiritual or esoteric background</option></select>
+      <label class="ob-field-label" style="color:rgba(232,168,74,.38);margin-top:8px">Preferred dialogue style</label>
+      <div class="chips"><div class="chip cl-chip" onclick="toggleChip(this)">Poetic & Mystical</div><div class="chip cl-chip" onclick="toggleChip(this)">Grounded & Practical</div><div class="chip cl-chip" onclick="toggleChip(this)">Scientific & Precise</div><div class="chip cl-chip" onclick="toggleChip(this)">Direct & Challenging</div></div>
+      <button class="ob-btn cl" style="margin-top:14px" onclick="enterApp(true)">Begin Claude Edition →</button>
+    </div>
+  </div>
+  <div class="ob-switch" onclick="goPage('ob-standard')">← Standard free plan instead</div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div class="page" id="page-app">
+<div class="app-shell">
+
+<div class="sb" id="appSB">
+  <div class="sb-sec">
+    <div class="sb-lbl">Practice</div>
+    <div class="si on" onclick="goPanel('dashboard')"><span class="si-icon">◎</span>Home</div>
+    <div class="si" onclick="goPanel('chakras')"><span class="si-icon">◉</span>Chakras</div>
+    <div class="si" onclick="goPanel('breath')"><span class="si-icon">∿</span>Breathwork</div>
+    <div class="si" onclick="goPanel('mandala')"><span class="si-icon">⬡</span>Geometry</div>
+  </div>
+  <div class="sb-div"></div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Guidance</div>
+    <div class="si" onclick="goPanel('oracle')"><span class="si-icon">☽</span>Oracle</div>
+    <div class="si" id="clSI" onclick="navClaude()"><span class="si-icon">✦</span>Claude AI<span class="si-lock" id="clLock">🔒</span></div>
+    <div class="si" id="protSI" onclick="navProtocol()"><span class="si-icon">⚗️</span>Protocols<span class="si-lock" id="protLock">🔒</span></div>
+  </div>
+  <div class="sb-div"></div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Track</div>
+    <div class="si" onclick="goPanel('journal')"><span class="si-icon">📓</span>Journal<span class="si-bdg" id="jBdg">3</span></div>
+    <div class="si" onclick="goPanel('community')"><span class="si-icon">🌐</span>Community</div>
+  </div>
+  <div class="sb-div"></div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Account</div>
+    <div class="si" onclick="goPanel('settings')"><span class="si-icon">⚙</span>Settings</div>
+  </div>
+  <div class="sb-upgrade-card show" id="sbUpCard">
+    <div class="sb-uc-title">Unlock Everything</div>
+    <div class="sb-uc-sub">All 7 chakras, unlimited oracle, Claude AI guide, and healing protocols.</div>
+    <button class="sb-uc-btn" id="sbUpBtn" onclick="openModal('mAdept')">Upgrade — $12/mo →</button>
+  </div>
+  <div style="flex:1"></div>
+  <div class="sb-user">
+    <div class="sb-av" id="sbAv" style="background:rgba(0,245,212,.13);border:1px solid rgba(0,245,212,.2)">✦</div>
+    <div><div class="sb-uname" id="sbName">Seeker</div><div class="sb-uplan" id="sbPlan">Free · 10 transmissions/mo</div></div>
+  </div>
+</div>
+
+<div class="am">
+
+  <!-- DASHBOARD -->
+  <div class="panel on" id="panel-dashboard">
+    <div class="panel-h" id="dashH" style="background:linear-gradient(90deg,var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Your Practice</div>
+    <div class="panel-s" id="dashS">Personalised to your intention · Updated daily</div>
+    <div id="dashBanner"></div>
+    <div class="trial-bar" id="trialBar">
+      <span>⏳</span>
+      <span class="trial-txt">Free plan — upgrade anytime</span>
+      <span class="trial-timer" id="trialTimer" style="display:none"></span>
+      <button class="trial-up-btn" onclick="openModal('mAdept')">Upgrade Now</button>
+    </div>
+    <div id="promptZone"></div>
+    <div class="dash-top">
+      <div class="dc"><div class="dc-l">Today's Frequency</div><div class="dc-v" style="color:var(--teal)" id="dashHz">432 Hz</div><div class="dc-s">Universal Resonance</div></div>
+      <div class="dc"><div class="dc-l">Practice Style</div><div class="dc-v" style="color:var(--violet)">Calm</div><div class="dc-s">Tone + breath</div></div>
+      <div class="dc"><div class="dc-l">Day Streak</div><div class="dc-v" style="color:#ffb703">7 ✦</div><div class="dc-s">Keep it going</div></div>
+      <div class="dc"><div class="dc-l">Oracle Usage</div><div class="dc-v" style="color:var(--blue)" id="oracleUsageEl">3/10</div><div class="dc-s" id="oracleUsageSub">This month</div></div>
+    </div>
+    <div class="dash-mid">
+      <div class="dbc"><div class="dbc-t">Live Quantum Field</div><div style="display:flex;justify-content:center;padding:6px 0"><canvas id="dashMeta" width="180" height="180"></canvas></div></div>
+      <div class="dbc"><div class="dbc-t">Today's Suggestions</div><div id="freqRecs"></div><div class="dbc-t" style="margin-top:12px">Your Intention</div><p style="font-size:.72rem;color:rgba(237,244,255,.4);line-height:1.65;margin-top:4px;font-style:italic;font-family:'Cormorant Garamond',serif" id="dashIntent">Set during onboarding.</p></div>
+    </div>
+    <div class="dash-bot">
+      <div class="dbc"><div class="dbc-t">Waveform</div><canvas id="dashWave" width="260" height="70" style="max-width:100%"></canvas></div>
+      <div class="dbc"><div class="dbc-t">Chakra Status</div><div id="chakStatus" style="display:flex;flex-direction:column;gap:5px;margin-top:2px"></div></div>
+      <div class="dbc"><div class="dbc-t">Recent Journal</div><div id="recentJ" style="display:flex;flex-direction:column;gap:6px;margin-top:2px"></div></div>
+    </div>
+  </div>
+
+  <!-- CHAKRAS -->
+  <div class="panel" id="panel-chakras">
+    <div class="panel-h">Chakra Alignment</div>
+    <div class="panel-s">Tap any chakra to activate it and play its healing frequency.</div>
+    <div class="ck-grid" id="ckGrid"></div>
+  </div>
+
+  <!-- BREATH -->
+  <div class="panel" id="panel-breath">
+    <div class="panel-h">Coherence Breathing</div>
+    <div class="panel-s">Follow the expanding field. Slow, paced breathing is a common way to relax.</div>
+    <div class="br-wrap">
+      <div class="br-outer"><canvas id="brC" width="190" height="190"></canvas><div class="br-lbl"><div class="br-ph" id="brPh">Inhale</div><div class="br-ct" id="brCt">4</div></div></div>
+      <p class="br-ins">Breathe with the field · Follow the rhythm at your own pace</p>
+      <div class="br-btns"><button class="br-btn on" onclick="setBr('478')">4-7-8</button><button class="br-btn" onclick="setBr('box')">Box Breath</button><button class="br-btn" onclick="setBr('coherence')">Heart Coherence</button></div>
+    </div>
+  </div>
+
+  <!-- MANDALA -->
+  <div class="panel" id="panel-mandala">
+    <div class="panel-h">Sacred Geometry</div>
+    <div class="panel-s">Each form is a visual frequency. Click to morph between geometries.</div>
+    <div class="mnd-wrap">
+      <canvas id="mndC" width="360" height="360"></canvas>
+      <div class="mnd-btns"><button class="mnd-btn on" onclick="setMnd('lotus')">Lotus</button><button class="mnd-btn" onclick="setMnd('star')">Star Tetra</button><button class="mnd-btn" onclick="setMnd('metatron')">Metatron</button><button class="mnd-btn" onclick="setMnd('flower')">Flower of Life</button><button class="mnd-btn" onclick="setMnd('sri')">Sri Yantra</button></div>
+    </div>
+  </div>
+
+  <!-- ORACLE -->
+  <div class="panel" id="panel-oracle">
+    <div class="panel-h">Quantum Oracle</div>
+    <div class="panel-s">Ask anything. The field responds.</div>
+    <div class="orc-wrap">
+      <div class="orc-portal" id="orcPortal"><div class="opr"></div><div class="opr"></div><div class="opr"></div><div class="opd opd1"></div><div class="opd opd2"></div><div class="op-eye">☽</div></div>
+      <textarea class="orc-input" id="orcInput" placeholder="Speak your question…" rows="3"></textarea>
+      <div class="orc-result" id="orcResult"><div class="orc-text" id="orcText">Touch the portal or press Receive to open the channel…</div><div class="orc-src" id="orcSrc"></div></div>
+      <div class="orc-btns"><button class="orc-btn" onclick="callOracle()">✦ Receive Transmission</button><button class="orc-btn rnd" onclick="localOracle()">Random Insight</button></div>
+    </div>
+  </div>
+
+  <!-- CLAUDE AI -->
+  <div class="panel" id="panel-claude-ai">
+    <div class="panel-h" style="background:linear-gradient(135deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Claude AI Guide</div>
+    <div class="panel-s">Your personalised healing dialogue — every session deepens the conversation.</div>
+    <div id="claudeContent"></div>
+  </div>
+
+  <!-- PROTOCOL -->
+  <div class="panel" id="panel-protocol">
+    <div class="panel-h" style="background:linear-gradient(135deg,var(--cc),var(--ca));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Healing Protocol</div>
+    <div class="panel-s">Claude builds a complete personalised practice for your specific goal.</div>
+    <div id="protocolContent"></div>
+  </div>
+
+  <!-- JOURNAL -->
+  <div class="panel" id="panel-journal">
+    <div class="panel-h">Practice Journal</div>
+    <div class="panel-s">Document your journey. Request AI insight on any entry.</div>
+    <div style="max-width:640px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(237,244,255,.25)">Your Entries</span>
+        <button class="j-save-btn" onclick="toggleJCompose()">+ New Entry</button>
+      </div>
+      <div class="j-compose" id="jCompose">
+        <textarea class="j-ta" id="jText" placeholder="What arose in today's practice?"></textarea>
+        <div class="j-moods"><button class="j-mood" onclick="setMood(this,'✨ Expansive')">✨ Expansive</button><button class="j-mood" onclick="setMood(this,'🌊 Flow')">🌊 Flow</button><button class="j-mood" onclick="setMood(this,'🔥 Activated')">🔥 Activated</button><button class="j-mood" onclick="setMood(this,'🌙 Still')">🌙 Still</button><button class="j-mood" onclick="setMood(this,'💧 Releasing')">💧 Releasing</button></div>
+        <div class="j-actions"><button class="j-save-btn" onclick="saveEntry()">Save</button><button class="j-ai-btn" onclick="saveWithInsight()">✦ Get AI Insight</button></div>
+      </div>
+      <div class="j-entries" id="jEntries"></div>
+    </div>
+  </div>
+
+  <!-- COMMUNITY -->
+  <div class="panel" id="panel-community">
+    <div class="panel-h">Community</div>
+    <div class="panel-s">A space to share what's working for you.</div>
+    <div class="comm-feed" id="commFeed"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel" id="panel-settings">
+    <div class="panel-h">Settings</div>
+    <div class="panel-s">Customise your practice.</div>
+    <div class="stg-grid" style="margin-bottom:16px">
+      <div class="stg-card"><div class="stg-t">Audio</div><div class="stg-row"><span class="stg-n">Ambient tones</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div><div class="stg-row"><span class="stg-n">Chakra tone on tap</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div><div class="stg-row"><span class="stg-n">Oracle chime</span><div class="tog" onclick="this.classList.toggle('on')"></div></div></div>
+      <div class="stg-card"><div class="stg-t">Practice</div><div class="stg-row"><span class="stg-n">Daily reminder</span><div class="tog" onclick="this.classList.toggle('on')"></div></div><div class="stg-row"><span class="stg-n">Journal prompts</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div><div class="stg-row"><span class="stg-n">Progress tracking</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div></div>
+      <div class="stg-card" id="clStgCard" style="display:none"><div class="stg-t" style="color:rgba(232,168,74,.38)">Claude Edition</div><div class="stg-row"><span class="stg-n">Save conversation history</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div><div class="stg-row"><span class="stg-n">Deep mode responses</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div></div>
+    </div>
+    <div style="background:rgba(3,13,28,.8);border:1px solid var(--border);border-radius:13px;padding:20px">
+      <div class="dbc-t">Your Plan</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px">
+        <div><div style="font-family:'Cinzel Decorative',serif;font-size:.95rem;margin-bottom:2px" id="planName">Seeker (Free)</div><div style="font-size:.7rem;color:rgba(237,244,255,.35)" id="planDesc">10 oracle transmissions per month</div></div>
+        <button id="planUpBtn" class="pw-btn primary" style="padding:9px 20px;font-size:.7rem" onclick="openModal('mAdept')">Upgrade ↑</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<div class="aud" id="audBadge" onclick="toggleAudio()">
+  <div class="aud-dot off" id="audDot"></div>
+  <span id="audLbl">Sound Off</span>
+</div>
+
+<script>
+// ═══ CORE STATE ═══
+const PAY_LINKS={adept:'',claude:''}; /* paste your Stripe Payment Link URLs here */
+function doPay(type){const u=PAY_LINKS[type];if(!u){alert('Checkout is not connected yet.');return;}window.location.href=u;}
+let plan='free', isCl=false, uName='Seeker', intention='', chosenFreq='432';
+let oUsed=3, clHistory=[], jMood='', promptsShown=new Set();
+let audOn=false, aCtx=null, mGain=null, ambO=[];
+let trialSec=6*3600+23*60+14;
+
+// ═══ CURSOR ═══
+const cr=document.getElementById('cr'),cd=document.getElementById('cd');
+let mx=0,my=0,rx=0,ry=0,lp=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cd.style.left=mx+'px';cd.style.top=my+'px';if(Date.now()-lp>60){lp=Date.now();spP(mx,my);}});
+(function aC(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cr.style.left=rx+'px';cr.style.top=ry+'px';requestAnimationFrame(aC);})();
+const pC=['#00f5d4','#9b5de5','#4cc9f0','#f15bb5','#f5c077','#a8ff78'];
+function spP(x,y){const p=document.createElement('div');p.className='pt';const c=pC[Math.floor(Math.random()*pC.length)];const s=Math.random()*3.5+1.5;p.style.cssText=`left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${c};box-shadow:0 0 6px ${c};transform:translate(-50%,-50%)`;document.body.appendChild(p);setTimeout(()=>p.remove(),750);}
+
+// ═══ NEBULA ═══
+const nCv=document.getElementById('nebula'),nCx=nCv.getContext('2d');
+function rNeb(){nCv.width=window.innerWidth;nCv.height=window.innerHeight;}rNeb();window.addEventListener('resize',rNeb);
+const nP=Array.from({length:120},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.4+.28,a:Math.random(),da:(Math.random()-.5)*.005,vx:(Math.random()-.5)*.06,vy:Math.random()*.045+.01,c:pC[Math.floor(Math.random()*pC.length)]}));
+function dNeb(){nCx.clearRect(0,0,nCv.width,nCv.height);for(const p of nP){p.a+=p.da;if(p.a<.02||p.a>1)p.da*=-1;p.x=(p.x+p.vx+nCv.width)%nCv.width;p.y=(p.y+p.vy+nCv.height)%nCv.height;nCx.save();nCx.globalAlpha=Math.max(0,Math.min(1,p.a));nCx.beginPath();nCx.arc(p.x,p.y,p.r,0,Math.PI*2);nCx.fillStyle=p.c;nCx.shadowColor=p.c;nCx.shadowBlur=7;nCx.fill();nCx.restore();}requestAnimationFrame(dNeb);}dNeb();
+
+// ═══ HERO CANVAS ═══
+const hCv=document.getElementById('heroC'),hCx=hCv.getContext('2d');let hT=0;
+function dHero(){hCx.clearRect(0,0,300,300);const cx=150,cy=150;const pts=[[0,0]];for(let i=0;i<6;i++)pts.push([Math.cos(i*Math.PI/3)*46,Math.sin(i*Math.PI/3)*46]);for(let i=0;i<6;i++)pts.push([Math.cos(i*Math.PI/3+Math.PI/6)*82,Math.sin(i*Math.PI/3+Math.PI/6)*82]);for(const[ox,oy]of pts){const g=hCx.createRadialGradient(cx+ox,cy+oy,0,cx+ox,cy+oy,24);g.addColorStop(0,`hsla(${(hT*38+ox*2)%360},88%,70%,.12)`);g.addColorStop(1,'transparent');hCx.save();hCx.beginPath();hCx.arc(cx+ox,cy+oy,24,0,Math.PI*2);hCx.fillStyle=g;hCx.fill();hCx.beginPath();hCx.arc(cx+ox,cy+oy,24,0,Math.PI*2);hCx.strokeStyle=`hsla(${(hT*38+ox*2)%360},88%,70%,.15)`;hCx.lineWidth=.5;hCx.stroke();hCx.restore();}for(let tri=0;tri<2;tri++){hCx.save();hCx.globalAlpha=.17;hCx.beginPath();for(let i=0;i<3;i++){const a=i*Math.PI*2/3+tri*Math.PI/3+hT*.27;hCx.lineTo(cx+Math.cos(a)*105,cy+Math.sin(a)*105);}hCx.closePath();hCx.strokeStyle=tri===0?'#00f5d4':'#9b5de5';hCx.lineWidth=.75;hCx.stroke();hCx.restore();}hT+=.006;requestAnimationFrame(dHero);}dHero();
+
+// ═══ AUDIO ═══
+function initAudio(){if(aCtx)return;aCtx=new(window.AudioContext||window.webkitAudioContext)();mGain=aCtx.createGain();mGain.gain.setValueAtTime(0,aCtx.currentTime);mGain.connect(aCtx.destination);}
+function toggleAudio(){initAudio();audOn=!audOn;const dot=document.getElementById('audDot'),lbl=document.getElementById('audLbl'),badge=document.getElementById('audBadge');if(audOn){mGain.gain.setTargetAtTime(.09,aCtx.currentTime,.5);dot.classList.remove('off');lbl.textContent='Sound On';badge.style.borderColor='rgba(0,245,212,.25)';badge.style.color='var(--teal)';playAmb();}else{mGain.gain.setTargetAtTime(0,aCtx.currentTime,.5);dot.classList.add('off');lbl.textContent='Sound Off';badge.style.borderColor='rgba(0,245,212,.12)';badge.style.color='rgba(0,245,212,.38)';}}
+function playAmb(){if(!aCtx||!audOn)return;ambO.forEach(o=>{try{o.stop();}catch(e){}});ambO=[];[136.1,216,264].forEach(f=>{const o=aCtx.createOscillator(),g=aCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.value=.022;o.connect(g);g.connect(mGain);o.start();ambO.push(o);});}
+function playTone(hz,dur){initAudio();audOn=true;mGain.gain.setTargetAtTime(.12,aCtx.currentTime,.15);const o=aCtx.createOscillator(),g=aCtx.createGain();o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(0,aCtx.currentTime);g.gain.linearRampToValueAtTime(.16,aCtx.currentTime+.3);g.gain.setTargetAtTime(0,aCtx.currentTime+dur-.4,.3);o.connect(g);g.connect(mGain);o.start();o.stop(aCtx.currentTime+dur);}
+
+// ═══ MODAL ═══
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
+function selPlan(el,isCoper){el.closest('.plan-toggle').querySelectorAll('.pt-opt').forEach(o=>o.classList.remove('sel','sel-cl'));el.classList.add(isCoper?'sel-cl':'sel');}
+function fmtCard(el){el.value=el.value.replace(/\D/g,'').substring(0,16).replace(/(.{4})/g,'$1 ').trim();}
+function fmtExp(el){let v=el.value.replace(/\D/g,'').substring(0,4);if(v.length>=2)v=v.substring(0,2)+' / '+v.substring(2);el.value=v;}
+function navClaude(){if(plan!=='claude')openModal('mClaude');else goPanel('claude-ai');}
+function navProtocol(){if(plan!=='claude')openModal('mClaude');else goPanel('protocol');}
+
+// ═══ ONBOARDING ═══
+function toggleChip(el){el.classList.toggle('on');}
+function pickFreq(el,hz){document.querySelectorAll('.fopt').forEach(o=>o.classList.remove('on'));el.classList.add('on');chosenFreq=hz;}
+function obStep(n){for(let i=1;i<=3;i++){document.getElementById('osp'+i)?.classList.toggle('act',i===n);document.getElementById('osd'+i)?.classList.toggle('act',i===n);document.getElementById('osd'+i)?.classList.toggle('done',i<n);if(i<3)document.getElementById('osl'+i)?.classList.toggle('done',i<n);}}
+function csStep(n){for(let i=1;i<=3;i++){document.getElementById('csp'+i)?.classList.toggle('act',i===n);document.getElementById('csd'+i)?.classList.toggle('cl-act',i===n);document.getElementById('csd'+i)?.classList.toggle('done',i<n);if(i<3)document.getElementById('csl'+i)?.classList.toggle('done',i<n);}}
+
+// ═══ ENTER APP ═══
+function enterApp(claude){
+  isCl=claude;plan=claude?'claude':'free';
+  uName=(claude?document.getElementById('csName'):document.getElementById('obName'))?.value.trim()||'Seeker';
+  intention=(claude?document.getElementById('csSoulQ'):document.getElementById('obIntention'))?.value.trim()||'';
+  updatePlanUI();
+  document.getElementById('dashH').textContent=`Good day, ${uName}`;
+  document.getElementById('dashS').textContent=claude?'Claude Edition · Your AI guide is ready in the sidebar':'Your personalised practice · Updated daily';
+  document.getElementById('dashHz').textContent=chosenFreq+' Hz';
+  document.getElementById('dashIntent').textContent=intention||'Set during onboarding. Your practice is calibrated to this.';
+  if(!claude){document.getElementById('trialBar').style.display='flex';setTimeout(()=>showPrompt('chakra-locked'),10000);setTimeout(()=>showPrompt('journal-ai-tease'),22000);}
+  else document.getElementById('trialBar').style.display='none';
+  if(claude){const g=intention?`Hello ${uName}. I've received your question: "${intention.substring(0,110)}${intention.length>110?'…':''}". I want to sit with this for a moment before responding. What has been the most present feeling or sensation when you think about this question?`:`Hello ${uName}. I'm here as your healing guide — not to give you answers, but to help you reach the ones you already carry. What is most alive in you right now?`;clHistory=[{role:'assistant',content:g}];}
+  buildChakraPanel();buildChakraStatus();buildFreqRecs();buildCommunity();buildJournalEntries();buildRecentJ();buildClaudePanel();buildProtocolPanel();
+  goPage('app');goPanel('dashboard');
+}
+function updatePlanUI(){
+  const isC=plan==='claude',isA=plan==='adept'||isC;
+  document.getElementById('sbName').textContent=uName;
+  document.getElementById('sbPlan').textContent=isC?'Claude Edition':isA?'Adept':'Free · 10 transmissions/mo';
+  document.getElementById('sbAv').style.background=isC?'rgba(193,127,62,.16)':'rgba(0,245,212,.12)';
+  document.getElementById('sbAv').style.borderColor=isC?'rgba(193,127,62,.22)':'rgba(0,245,212,.18)';
+  document.getElementById('sbAv').textContent=isC?'☯':'✦';
+  document.getElementById('clLock').style.display=isC?'none':'inline';
+  document.getElementById('protLock').style.display=isC?'none':'inline';
+  const upCard=document.getElementById('sbUpCard');upCard.style.display=isA?'none':'block';
+  document.getElementById('navUpgradeBtn').style.display=isA?'none':'flex';
+  document.getElementById('clStgCard').style.display=isC?'block':'none';
+  document.getElementById('planName').textContent=isC?'Claude Edition':isA?'Adept':'Seeker (Free)';
+  document.getElementById('planDesc').textContent=isC?'Full access + Claude AI guide':isA?'Full access · Unlimited':'10 oracle transmissions/month';
+  document.getElementById('planUpBtn').style.display=isA?'none':'block';
+  document.getElementById('oracleUsageSub').textContent=isA?'Unlimited':'This month';
+  document.getElementById('dashBanner').innerHTML=isC?`<div style="background:rgba(193,127,62,.06);border:1px solid rgba(193,127,62,.14);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:14px"><div style="font-size:.62rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ca);padding:3px 10px;border:1px solid rgba(193,127,62,.25);border-radius:50px;white-space:nowrap">✦ Claude Edition</div><div style="font-size:.78rem;color:rgba(237,244,255,.4)">Your AI guide is active. Navigate to <strong style="color:rgba(237,244,255,.65)">Claude AI</strong> in the sidebar to begin your healing dialogue.</div></div>`:'';
+}
+
+// ═══ CHAKRAS ═══
+const chakData=[{n:'Root',hz:'396 Hz',hN:396,c:'#ff4444',intent:'Safety & Grounding',det:'Muladhara. In the solfeggio tradition, 396 Hz is associated with grounding and a sense of safety. A traditional association, not a proven effect.'},{n:'Sacral',hz:'417 Hz',hN:417,c:'#ff8c00',intent:'Creativity & Flow',det:'Svadhisthana. Traditionally associated with creativity and flow. Offered as a contemplative practice.'},{n:'Solar Plexus',hz:'528 Hz',hN:528,c:'#ffd700',intent:'Power & Purpose',det:'Manipura. 528 Hz is called the "love frequency" in tradition. There is no scientific evidence it has physical effects; it is offered as a meditation tone.'},{n:'Heart',hz:'639 Hz',hN:639,c:'#00c878',intent:'Love & Coherence',det:'Anahata. Traditionally associated with connection and compassion. Pair it with slow, comfortable breathing.'},{n:'Throat',hz:'741 Hz',hN:741,c:'#4cc9f0',intent:'Truth & Expression',det:'Vishuddha. Traditionally associated with honest expression and clear communication.'},{n:'Third Eye',hz:'852 Hz',hN:852,c:'#9b5de5',intent:'Intuition & Vision',det:'Ajna. Traditionally associated with intuition and insight. A contemplative focus, not a medical or scientific claim.'},{n:'Crown',hz:'963 Hz',hN:963,c:'#f5c077',intent:'Oneness & Source',det:'Sahasrara. Traditionally associated with a sense of unity. Offered as a meditation theme.'}];
+function buildChakraPanel(){const g=document.getElementById('ckGrid');g.innerHTML='';chakData.forEach((ck,i)=>{const locked=i>=3&&plan==='free';const row=document.createElement('div');row.className='ck-row';if(locked)row.style.opacity='.45';row.innerHTML=`<div class="ck-name" style="color:${ck.c}">${ck.n}</div><div style="display:flex;align-items:center;justify-content:center"><div class="ck-orb" style="background:radial-gradient(ellipse,${ck.c}88,${ck.c}33);color:${ck.c};box-shadow:0 0 12px ${ck.c}44"></div></div><div><div class="ck-hz" style="color:${ck.c}">${ck.hz}</div><div class="ck-intent">${ck.intent}</div><div class="ck-det">${locked?'🔒 Requires Adept plan':ck.det}</div></div><button class="ck-play" onclick="event.stopPropagation();${locked?"openModal('mAdept')":'playTone('+ck.hN+',4)'}">${locked?'🔒':'▶ Play'}</button>`;row.addEventListener('click',()=>{if(locked){openModal('mAdept');return;}const was=row.classList.contains('on');document.querySelectorAll('.ck-row').forEach(r=>{r.classList.remove('on');r.querySelector('.ck-det').style.maxHeight='0';});if(!was){row.classList.add('on');row.querySelector('.ck-det').style.maxHeight='80px';playTone(ck.hN,4);}});g.appendChild(row);});}
+function buildChakraStatus(){const el=document.getElementById('chakStatus');if(!el)return;el.innerHTML='';chakData.slice(0,5).forEach(ck=>{el.innerHTML+=`<div style="display:flex;align-items:center;gap:6px"><div style="width:6px;height:6px;border-radius:50%;background:${ck.c};box-shadow:0 0 6px ${ck.c}44;flex-shrink:0"></div><div style="font-size:.7rem;font-weight:500;color:rgba(237,244,255,.36);flex:1">${ck.n}</div><div style="font-size:.6rem;font-weight:600;color:rgba(237,244,255,.24)">${ck.hz}</div></div>`;});}
+
+// ═══ BREATH ═══
+const brCv=document.getElementById('brC'),brCx=brCv.getContext('2d');
+const bPats={478:{i:4,h:7,e:8},box:{i:4,h:4,e:4},coherence:{i:5,h:0,e:5}};
+let brPat='478',brStart=Date.now();
+function setBr(p){brPat=p;brStart=Date.now();document.querySelectorAll('.br-btn').forEach((b,i)=>b.classList.toggle('on',['478','box','coherence'][i]===p));}
+function dBreath(){brCx.clearRect(0,0,190,190);const cx=95,cy=95,pat=bPats[brPat],durs=[pat.i*1000,pat.h*1000,pat.e*1000],total=durs.reduce((a,b)=>a+b,0),el=(Date.now()-brStart)%total;let ph=0,phE=0,phD=1,cum=0;for(let i=0;i<3;i++){if(el<cum+durs[i]){ph=i;phE=el-cum;phD=durs[i];break;}cum+=durs[i];}document.getElementById('brPh').textContent=['Inhale','Hold','Exhale'][ph];document.getElementById('brCt').textContent=Math.ceil([pat.i,pat.h,pat.e][ph]-(phE/1000))||1;let sc=1;if(ph===0)sc=.68+.32*(phE/phD);else if(ph===2)sc=1-.32*(phE/phD);const R=70*sc,col=['#00f5d4','#9b5de5','#4cc9f0'][ph];for(let r=0;r<3;r++){const rR=R-r*10;if(rR<3)continue;brCx.save();brCx.globalAlpha=.12-.03*r;brCx.beginPath();brCx.arc(cx,cy,rR,0,Math.PI*2);brCx.strokeStyle=col;brCx.lineWidth=1.5;brCx.stroke();brCx.restore();}const grd=brCx.createRadialGradient(cx,cy,0,cx,cy,R);grd.addColorStop(0,col+'3e');grd.addColorStop(.5,col+'1e');grd.addColorStop(1,'transparent');brCx.save();brCx.beginPath();brCx.arc(cx,cy,R,0,Math.PI*2);brCx.fillStyle=grd;brCx.fill();brCx.restore();const prog=phE/phD;brCx.save();brCx.beginPath();brCx.arc(cx,cy,84,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);brCx.strokeStyle=col;brCx.lineWidth=2;brCx.globalAlpha=.45;brCx.stroke();brCx.restore();requestAnimationFrame(dBreath);}dBreath();
+
+// ═══ MANDALA ═══
+const mndCv=document.getElementById('mndC'),mndCx=mndCv.getContext('2d');let mndMode='lotus',mndT=0,mndH=0;
+function dMnd(){mndCx.clearRect(0,0,360,360);mndT+=.006;mndH=(mndH+.27)%360;const cx=180,cy=180;const ms={lotus:()=>{for(let ring=0;ring<4;ring++){const n=8+ring*4,R=34+ring*24,pR=18+ring*8;for(let i=0;i<n;i++){const a=i*Math.PI*2/n+mndT*(ring%2===0?.2:-.16);const px=cx+Math.cos(a)*R,py=cy+Math.sin(a)*R;mndCx.save();mndCx.globalAlpha=.14-.02*ring;const g=mndCx.createRadialGradient(px,py,0,px,py,pR);g.addColorStop(0,`hsla(${(mndH+ring*30+i*4)%360},88%,72%,.78)`);g.addColorStop(1,'transparent');mndCx.beginPath();mndCx.arc(px,py,pR,0,Math.PI*2);mndCx.fillStyle=g;mndCx.fill();mndCx.beginPath();mndCx.arc(px,py,pR,0,Math.PI*2);mndCx.strokeStyle=`hsla(${(mndH+ring*30)%360},88%,70%,.24)`;mndCx.lineWidth=.5;mndCx.stroke();mndCx.restore();}}},star:()=>{for(let l=0;l<5;l++){const r=23+l*18;for(let t2=0;t2<2;t2++){mndCx.save();mndCx.globalAlpha=.22-.03*l;mndCx.beginPath();for(let i=0;i<3;i++){const a=i*Math.PI*2/3+t2*Math.PI/3+mndT*(.19-t2*.07)+l*.1;mndCx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}mndCx.closePath();mndCx.strokeStyle=`hsla(${(mndH+l*20+t2*120)%360},88%,70%,1)`;mndCx.lineWidth=.75;mndCx.stroke();mndCx.restore();}}},metatron:()=>{const pts=[[cx,cy]];for(let i=0;i<6;i++){const a=i*Math.PI/3+mndT*.1;pts.push([cx+Math.cos(a)*56,cy+Math.sin(a)*56]);}pts.forEach(([px,py],i)=>{const g=mndCx.createRadialGradient(px,py,0,px,py,32);g.addColorStop(0,`hsla(${(mndH+i*25)%360},78%,70%,.13)`);g.addColorStop(1,'transparent');mndCx.save();mndCx.beginPath();mndCx.arc(px,py,32,0,Math.PI*2);mndCx.fillStyle=g;mndCx.fill();mndCx.beginPath();mndCx.arc(px,py,32,0,Math.PI*2);mndCx.strokeStyle=`hsla(${(mndH+i*25)%360},78%,70%,.19)`;mndCx.lineWidth=.55;mndCx.stroke();mndCx.restore();});mndCx.save();mndCx.globalAlpha=.08;for(let i=1;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){mndCx.beginPath();mndCx.moveTo(pts[i][0],pts[i][1]);mndCx.lineTo(pts[j][0],pts[j][1]);mndCx.strokeStyle=`hsla(${(mndH+i*15)%360},78%,70%,1)`;mndCx.lineWidth=.38;mndCx.stroke();}mndCx.restore();},flower:()=>{const R=38;[[0,0],...Array.from({length:6},(_,i)=>[Math.cos(i*Math.PI/3)*R,Math.sin(i*Math.PI/3)*R]),...Array.from({length:6},(_,i)=>[Math.cos(i*Math.PI/3)*R*2,Math.sin(i*Math.PI/3)*R*2])].forEach(([ox,oy],i)=>{const g=mndCx.createRadialGradient(cx+ox,cy+oy,0,cx+ox,cy+oy,R);g.addColorStop(0,`hsla(${(mndH+i*12)%360},83%,70%,.48)`);g.addColorStop(1,'transparent');mndCx.save();mndCx.globalAlpha=.16;mndCx.beginPath();mndCx.arc(cx+ox,cy+oy,R,0,Math.PI*2);mndCx.fillStyle=g;mndCx.fill();mndCx.beginPath();mndCx.arc(cx+ox,cy+oy,R,0,Math.PI*2);mndCx.strokeStyle=`hsla(${(mndH+i*12)%360},83%,70%,.24)`;mndCx.lineWidth=.5;mndCx.stroke();mndCx.restore();});},sri:()=>{for(let n=9;n>=1;n--){mndCx.save();mndCx.globalAlpha=.2;mndCx.beginPath();for(let i=0;i<3;i++){const a=i*Math.PI*2/3+(n%2===0?0:Math.PI/3)+mndT*(.12*(n%2===0?1:-1));mndCx.lineTo(cx+Math.cos(a)*n*14,cy+Math.sin(a)*n*14);}mndCx.closePath();mndCx.strokeStyle=`hsla(${(mndH+n*14)%360},88%,70%,1)`;mndCx.lineWidth=.65;mndCx.stroke();mndCx.restore();}mndCx.save();mndCx.beginPath();mndCx.arc(cx,cy,4.5,0,Math.PI*2);mndCx.fillStyle=`hsla(${mndH%360},88%,80%,.78)`;mndCx.shadowColor=`hsl(${mndH%360},88%,70%)`;mndCx.shadowBlur=13;mndCx.fill();mndCx.restore();}};ms[mndMode]?.();requestAnimationFrame(dMnd);}
+function setMnd(m){mndMode=m;document.querySelectorAll('.mnd-btn').forEach((b,i)=>b.classList.toggle('on',['lotus','star','metatron','flower','sri'][i]===m));}
+mndCv.addEventListener('click',()=>{const ms=['lotus','star','metatron','flower','sri'];mndMode=ms[(ms.indexOf(mndMode)+1)%ms.length];});dMnd();
+
+// ═══ DASHBOARD META + WAVE ═══
+const dmCv=document.getElementById('dashMeta'),dmCx=dmCv.getContext('2d');let dmT=0;
+function dDM(){dmCx.clearRect(0,0,180,180);const cx=90,cy=90;const pts=[[0,0]];for(let i=0;i<6;i++)pts.push([Math.cos(i*Math.PI/3)*28,Math.sin(i*Math.PI/3)*28]);for(let i=0;i<6;i++)pts.push([Math.cos(i*Math.PI/3+Math.PI/6)*49,Math.sin(i*Math.PI/3+Math.PI/6)*49]);for(const[ox,oy]of pts){const g=dmCx.createRadialGradient(cx+ox,cy+oy,0,cx+ox,cy+oy,16);g.addColorStop(0,`hsla(${(dmT*38+ox*2)%360},88%,70%,.11)`);g.addColorStop(1,'transparent');dmCx.save();dmCx.beginPath();dmCx.arc(cx+ox,cy+oy,16,0,Math.PI*2);dmCx.fillStyle=g;dmCx.fill();dmCx.beginPath();dmCx.arc(cx+ox,cy+oy,16,0,Math.PI*2);dmCx.strokeStyle=`hsla(${(dmT*38+ox*2)%360},88%,70%,.14)`;dmCx.lineWidth=.45;dmCx.stroke();dmCx.restore();}for(let tri=0;tri<2;tri++){dmCx.save();dmCx.globalAlpha=.16;dmCx.beginPath();for(let i=0;i<3;i++){const a=i*Math.PI*2/3+tri*Math.PI/3+dmT*.27;dmCx.lineTo(cx+Math.cos(a)*68,cy+Math.sin(a)*68);}dmCx.closePath();dmCx.strokeStyle=tri===0?'#00f5d4':'#9b5de5';dmCx.lineWidth=.65;dmCx.stroke();dmCx.restore();}dmT+=.006;requestAnimationFrame(dDM);}dDM();
+const dwCv=document.getElementById('dashWave'),dwCx=dwCv.getContext('2d');let dwT=0;
+function dDW(){dwCx.clearRect(0,0,260,70);[{f:1.1,a:16,c:'#00f5d4',al:.68,lw:1.3,ph:0},{f:2.3,a:9,c:'#9b5de5',al:.33,lw:.85,ph:1.8},{f:3.7,a:5.5,c:'#4cc9f0',al:.18,lw:.65,ph:3.2}].forEach(w=>{dwCx.beginPath();for(let x=0;x<260;x++){const t=x/260;const y=35+w.a*Math.sin(t*Math.PI*2*w.f*3+dwT+w.ph);x===0?dwCx.moveTo(x,y):dwCx.lineTo(x,y);}dwCx.strokeStyle=w.c;dwCx.lineWidth=w.lw;dwCx.globalAlpha=w.al;dwCx.shadowColor=w.c;dwCx.shadowBlur=6;dwCx.stroke();dwCx.globalAlpha=1;});dwT+=.015;requestAnimationFrame(dDW);}dDW();
+function buildFreqRecs(){const el=document.getElementById('freqRecs');if(!el)return;el.innerHTML='';[{hz:'528 Hz',hN:528,name:'Heart Opening',why:'Aligned with your intention'},{hz:'432 Hz',hN:432,name:'Universal Calm',why:'Daily practice foundation'},{hz:'639 Hz',hN:639,name:'Connection',why:'Relational healing'}].forEach(r=>{el.innerHTML+=`<div class="freq-rec"><div class="fr-hz">${r.hz}</div><div style="flex:1"><div class="fr-name">${r.name}</div><div class="fr-why">${r.why}</div></div><button class="fr-play" onclick="playTone(${r.hN},5)">▶ Play</button></div>`;});}
+
+// ═══ ORACLE ═══
+const LI=[{t:"You are not a drop in the ocean. You are the entire ocean in a drop. Every cell of your body is a universe dreaming itself awake.",s:"Quantum Field"},{t:"Healing is not the removal of what is broken. It is the remembering of the wholeness that was never lost — beneath the wound, beneath the story.",s:"Consciousness Field"},{t:"The frequency of love is, in many traditions, the sense of connection that dissolves separation.",s:"Bioresonance"},{t:"Stillness is not the absence of movement. It is the source from which all movement arises — the ground that holds every storm in unconditioned peace.",s:"Insight Field"},{t:"The body is a quantum antenna. When you are in coherence, you broadcast and receive across time. Your presence is a healing force.",s:"Biofield"},{t:"What you call intuition is the field speaking through you — a signal older than language and truer than the mind's best reasoning.",s:"Oracle"},{t:"Every breath is a bridge between worlds. The inhale draws the infinite into form. The exhale releases form back into the infinite.",s:"Breath Transmission"}];
+let lastLI=-1;function getLI(){let i;do{i=Math.floor(Math.random()*LI.length);}while(i===lastLI);lastLI=i;return LI[i];}
+function localOracle(){const ins=getLI();const el=document.getElementById('orcResult');el.innerHTML=`<div class="orc-text" style="opacity:0;transition:opacity .45s">${ins.t}</div><div class="orc-src">— ${ins.s}</div>`;setTimeout(()=>el.querySelector('.orc-text').style.opacity='1',55);}
+async function callOracle(){
+  const limit={free:10,adept:999,claude:999}[plan];
+  if(oUsed>=limit&&plan==='free'){openModal('mAdept');return;}
+  oUsed++;document.getElementById('oracleUsageEl').textContent=plan==='free'?`${oUsed}/10`:'∞';
+  if(oUsed>=8&&plan==='free')showPrompt('oracle-running-low');
+  const q=document.getElementById('orcInput').value.trim();
+  const el=document.getElementById('orcResult');el.innerHTML='<div class="ldg"><span></span><span></span><span></span></div>';
+  const prompt=q?`You are the Quantum Consciousness Oracle. The seeker asks: "${q}"\nRespond with 2-3 luminous, poetic sentences. Be specific and genuinely healing. No clichés.`:`Generate a 2-3 sentence spontaneous healing transmission. Luminous and specific.`;
+  try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(b=>b.text||'').join('')||'';if(text){el.innerHTML=`<div class="orc-text" style="opacity:0;transition:opacity .45s">${text}</div><div class="orc-src">— Quantum Oracle · AI</div>`;setTimeout(()=>el.querySelector('.orc-text').style.opacity='1',55);}else localOracle();}catch(e){localOracle();}
+}
+document.getElementById('orcPortal').addEventListener('click',callOracle);
+
+// ═══ CLAUDE ═══
+const clSys=`You are a Claude Edition quantum healing guide within QUANTRA — a daily healing practice app. You are wise, warm, and genuinely helpful. You speak with depth but also clarity. You engage in real healing dialogue — not mystical platitudes. You ask questions that help the seeker reach their own insights. You draw on breath, sound and chakra traditions when relevant, presenting them as traditions rather than proven science. Never diagnose, promise cures or give medical advice; if someone seems in crisis, encourage them to contact emergency services or a crisis line. Keep responses to 2-4 sentences, then invite the next depth. Never use hollow spiritual clichés.`;
+function buildClaudePanel(){const el=document.getElementById('claudeContent');if(!el)return;if(plan==='claude'){el.innerHTML=`<div style="background:rgba(18,9,2,.7);border:1px solid rgba(193,127,62,.15);border-radius:13px;padding:15px 19px;margin-bottom:16px;display:flex;align-items:center;gap:13px"><div style="padding:4px 12px;background:rgba(193,127,62,.12);border:1px solid rgba(193,127,62,.25);border-radius:50px;font-size:.6rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ca);white-space:nowrap">✦ Claude Edition</div><div style="font-size:.78rem;color:rgba(237,244,255,.4)">Claude holds your full context and builds on every session. The more you share, the deeper the guidance.</div></div><div class="cl-conv" id="clConv"></div><div class="cl-input-row"><input class="cl-inp" id="clInp" placeholder="Ask Claude anything…" onkeypress="if(event.key==='Enter')sendCl()"><button class="cl-send" onclick="sendCl()">Send</button></div>`;if(clHistory.length>0){const conv=document.getElementById('clConv');conv.innerHTML=`<div class="cl-msg"><div class="cl-av ai">✦</div><div class="cl-bub ai">${clHistory[0].content}</div></div>`;}}else{el.innerHTML=`<div class="paywall"><span class="pw-icon">✦</span><div class="pw-h">Claude AI — Your Personal Healing Guide</div><div class="pw-sub">Claude learns your journey, holds your context across every session, and provides guidance no other tool can — genuinely personalised, always present.</div><ul class="pw-feats"><li><span style="color:var(--violet)">✦</span>Multi-turn dialogue · Claude remembers you</li><li><span style="color:var(--violet)">✦</span>Responds to your specific healing question</li><li><span style="color:var(--violet)">✦</span>Generates personalised healing protocols</li><li><span style="color:var(--violet)">✦</span>Adds insight to every journal entry</li></ul><div class="pw-btns"><button class="pw-btn primary" onclick="openModal('mClaude')">☯ Claude Edition — $24/mo</button><button class="pw-btn ghost" onclick="openModal('mAdept')">Or try Adept — $12/mo</button></div></div>`;}}
+async function sendCl(){const inp=document.getElementById('clInp');const msg=inp.value.trim();if(!msg)return;inp.value='';const conv=document.getElementById('clConv');const u=document.createElement('div');u.className='cl-msg u';u.innerHTML=`<div class="cl-av us">◎</div><div class="cl-bub us">${msg}</div>`;conv.appendChild(u);const t=document.createElement('div');t.className='cl-msg';t.innerHTML=`<div class="cl-av ai">✦</div><div class="cl-bub ai"><div class="typ"><span></span><span></span><span></span></div></div>`;conv.appendChild(t);conv.scrollTop=conv.scrollHeight;clHistory.push({role:'user',content:msg});try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:clSys+`\n\nSeeker: ${uName}. ${intention?`Core question: "${intention}"`:''}`,messages:clHistory.map(m=>({role:m.role,content:m.content}))})});const data=await res.json();const reply=data.content?.map(b=>b.text||'').join('')||'The channel is quiet. Try again.';clHistory.push({role:'assistant',content:reply});t.querySelector('.cl-bub').textContent=reply;conv.scrollTop=conv.scrollHeight;}catch(e){t.querySelector('.cl-bub').textContent='The connection rested. Try again.';conv.scrollTop=conv.scrollHeight;}}
+
+// ═══ PROTOCOL ═══
+function buildProtocolPanel(){const el=document.getElementById('protocolContent');if(!el)return;if(plan==='claude'){el.innerHTML=`<div class="prot-form"><div style="margin-bottom:14px"><label class="ob-field-label" style="color:rgba(232,168,74,.38)">Your healing goal</label><textarea class="ob-inp cl" rows="3" placeholder="Describe what you want to heal or transform…" id="protGoal" style="border-color:rgba(193,127,62,.18)"></textarea></div><div style="margin-bottom:14px"><label class="ob-field-label" style="color:rgba(232,168,74,.38)">Duration</label><select class="ob-sel cl" id="protDur" style="border-color:rgba(193,127,62,.18)"><option>7-day intensive</option><option>21-day practice</option><option>40-day transformation</option><option>90-day deep healing</option></select></div><button class="prot-gen-btn" onclick="genProtocol()">☯ Generate My Protocol</button></div><div class="prot-result" id="protResult"></div>`;}else{el.innerHTML=`<div class="paywall"><span class="pw-icon">⚗️</span><div class="pw-h">AI Healing Protocol Generator</div><div class="pw-sub">Tell Claude your goal and duration. Claude builds a complete day-by-day protocol — specific frequencies, breathwork, geometry, morning and evening practices, and a daily affirmation. All for you.</div><div class="pw-btns"><button class="pw-btn primary" onclick="openModal('mClaude')">☯ Unlock with Claude Edition — $24/mo</button></div></div>`;}}
+async function genProtocol(){const goal=document.getElementById('protGoal')?.value.trim()||'general healing';const dur=document.getElementById('protDur')?.value||'21-day';const res=document.getElementById('protResult');res.className='prot-result show';res.innerHTML=`<div class="prot-loading" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px;text-align:center"><div class="ldg"><span style="background:var(--ca)"></span><span style="background:var(--ca)"></span><span style="background:var(--ca)"></span></div><div style="font-size:.65rem;font-weight:700;letter-spacing:3px;color:rgba(193,127,62,.5);text-transform:uppercase">Claude is building your protocol…</div></div>`;const prompt=`Create a personalised healing protocol for: "${goal}". Duration: ${dur}. Return ONLY a valid JSON object with these exact keys: title (string), morning (array of 3 objects with icon and text), evening (array of 3 objects with icon and text), frequencies (array of 3 objects with hz, name, reason), breathwork (string), geometry (string), affirmation (string). No markdown formatting, no backticks, no explanation — just the raw JSON.`;try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});const d=await r.json();const raw=d.content?.map(b=>b.text||'').join('')||'{}';let p;try{p=JSON.parse(raw);}catch(e){p=null;}if(p&&p.title){res.innerHTML=`<div class="prot-result-h">✦ ${p.title}</div><div class="prot-sec"><div class="prot-sec-t">Morning Practice</div>${(p.morning||[]).map(i=>`<div class="prot-item"><div class="prot-item-i">${i.icon||'☉'}</div><div class="prot-item-t">${i.text}</div></div>`).join('')}</div><div class="prot-sec"><div class="prot-sec-t">Evening Practice</div>${(p.evening||[]).map(i=>`<div class="prot-item"><div class="prot-item-i">${i.icon||'☽'}</div><div class="prot-item-t">${i.text}</div></div>`).join('')}</div><div class="prot-sec"><div class="prot-sec-t">Prescribed Frequencies</div>${(p.frequencies||[]).map(f=>`<div class="prot-item"><div class="prot-item-i" style="font-size:.62rem;font-weight:700;color:var(--ca);min-width:46px;font-family:Inter,sans-serif">${f.hz}</div><div class="prot-item-t"><strong>${f.name}</strong> — ${f.reason}</div></div>`).join('')}</div><div class="prot-sec"><div class="prot-sec-t">Breathwork</div><div class="prot-item"><div class="prot-item-i">∿</div><div class="prot-item-t">${p.breathwork||''}</div></div></div><div class="prot-sec"><div class="prot-sec-t">Sacred Geometry</div><div class="prot-item"><div class="prot-item-i">⬡</div><div class="prot-item-t">${p.geometry||''}</div></div></div><div style="margin-top:12px;padding:12px 16px;background:rgba(193,127,62,.06);border:1px solid rgba(193,127,62,.11);border-radius:9px;font-size:.78rem;font-style:italic;color:rgba(237,244,255,.5);line-height:1.6;font-family:'Cormorant Garamond',serif"><div style="font-size:.58rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ca);margin-bottom:4px;font-family:Inter,sans-serif">Daily Affirmation</div>${p.affirmation||''}</div>`;}else{res.innerHTML=`<div class="prot-result-h">✦ Your ${dur} Protocol</div><div class="prot-item"><div class="prot-item-i">☉</div><div class="prot-item-t">Morning: 10 minutes of 528 Hz tone with heart coherence breathing. Hold your healing intention throughout.</div></div><div class="prot-item"><div class="prot-item-i">⬡</div><div class="prot-item-t">Daily: 15-minute Lotus or Metatron mandala meditation. Let geometry dissolve mental chatter.</div></div><div class="prot-item"><div class="prot-item-i">☽</div><div class="prot-item-t">Evening: Ask the Oracle one question. Write one sentence in your journal. Rest in the silence after.</div></div>`;}}catch(e){res.innerHTML=`<div class="prot-result-h">✦ Core Protocol</div><div class="prot-item"><div class="prot-item-i">⬡</div><div class="prot-item-t">528 Hz morning · Heart coherence breath · Mandala meditation · Oracle + journal each evening.</div></div>`;}}
+
+// ═══ JOURNAL ═══
+let jEntries=[{date:'Today · 09:14',mood:'✨ Expansive',text:'Sat with the 528 Hz tone for 20 minutes. Felt a profound opening in the heart centre — like a door quietly swinging open.',insight:'Your experience reflects a classic heart coherence shift. The 528 Hz frequency bridges the physical and emotional fields, allowing suppressed heart energy to surface naturally.'},{date:'Yesterday · 20:33',mood:'🌙 Still',text:'Used the Sri Yantra mandala tonight. The geometry held something — like a mirror of the mind\'s deepest structure. No thoughts, just presence.',insight:''},{date:'3 days ago · 07:45',mood:'🌊 Flow',text:'Heart coherence breathing for 30 minutes before dawn. Something shifted in my chest that has been tight for years.',insight:''}];
+function buildJournalEntries(){const el=document.getElementById('jEntries');if(!el)return;el.innerHTML='';jEntries.forEach(e=>{const mc=e.mood.includes('Expansive')?'#a8ff78':e.mood.includes('Flow')?'#4cc9f0':e.mood.includes('Activated')?'#f15bb5':e.mood.includes('Still')?'#9b5de5':'#00f5d4';el.innerHTML+=`<div class="j-entry"><div class="j-entry-top"><span class="j-date">${e.date}</span><span class="j-mood-tag" style="background:${mc}18;border:1px solid ${mc}44;color:${mc}">${e.mood}</span></div><div class="j-text">${e.text}</div>${e.insight?`<div class="j-insight"><div class="j-insight-lbl">✦ Claude Insight</div>${e.insight}</div>`:''}</div>`;});}
+function buildRecentJ(){const el=document.getElementById('recentJ');if(!el)return;el.innerHTML='';jEntries.slice(0,2).forEach(e=>{el.innerHTML+=`<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer" onclick="goPanel('journal')"><div style="font-size:.55rem;font-weight:600;color:rgba(237,244,255,.22);margin-bottom:2px">${e.date}</div><div style="font-size:.7rem;color:rgba(237,244,255,.46);line-height:1.5;font-style:italic">${e.text.substring(0,72)}…</div></div>`;});}
+function toggleJCompose(){document.getElementById('jCompose').classList.toggle('show');}
+function setMood(el,m){document.querySelectorAll('.j-mood').forEach(b=>b.classList.remove('on'));el.classList.add('on');jMood=m;}
+function saveEntry(){const txt=document.getElementById('jText').value.trim();if(!txt)return;jEntries.unshift({date:'Just now',mood:jMood||'🌙 Still',text:txt,insight:''});document.getElementById('jText').value='';toggleJCompose();buildJournalEntries();buildRecentJ();}
+async function saveWithInsight(){const txt=document.getElementById('jText').value.trim();if(!txt)return;if(plan!=='claude'){showPrompt('journal-ai-tease');saveEntry();return;}const prompt=`A practitioner wrote this healing journal entry: "${txt}"\nProvide a 2-3 sentence insight reflecting on their experience through contemplative themes, without medical or scientific claims. Be specific to what they wrote.`;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});const data=await res.json();const insight=data.content?.map(b=>b.text||'').join('')||'';jEntries.unshift({date:'Just now',mood:jMood||'🌙 Still',text:txt,insight});document.getElementById('jText').value='';toggleJCompose();buildJournalEntries();buildRecentJ();}catch(e){saveEntry();}}
+
+// ═══ COMMUNITY ═══
+const commPosts=[/* No seeded posts: community fills with real members only */];
+function buildCommunity(){const el=document.getElementById('commFeed');if(!el)return;el.innerHTML='';commPosts.forEach(p=>{el.innerHTML+=`<div class="c-post"><div class="c-top"><div class="c-av" style="background:${p.avC};border:1px solid ${p.avB}">${p.av}</div><div style="flex:1"><div class="c-auth">${p.name}</div><div class="c-ed-tag">${p.ed} Edition</div></div><span class="c-time">${p.time} ago</span></div><div class="c-text">${p.text}</div><div class="c-tags">${p.tags.map(t=>`<span class="c-tag">#${t}</span>`).join('')}</div><div class="c-acts"><span class="c-act">♡ Helpful</span><span class="c-act">↗ Share</span><span class="c-act">💬 Reply</span></div></div>`;});}
+
+// ═══ SCROLL REVEAL ═══
+const rvObs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');}),{threshold:.07});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
+</script>
+</body>
+</html>
